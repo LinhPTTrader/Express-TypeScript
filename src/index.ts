@@ -1,5 +1,10 @@
-type Handle = () => Promise<string>
-const ten = 'LinhPhan'
+import express from 'express'
+import userRouter from './user.routes'
+const PORT = 3000
+const app = express()
 
-const handle: Handle = () => Promise.resolve(ten)
-handle().then((res) => console.log(res))
+app.get('/', (req, res) => res.send('Hello World'))
+
+
+app.use('/api', userRouter)
+app.listen(PORT, () => console.log('Server Start'))
