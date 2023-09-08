@@ -1,12 +1,20 @@
 import express from 'express'
 import usersRouter from './routes/users.routes'
-const PORT = 3000
-const app = express()
+import databaseService from './services/database.services'
+import dotenv from 'dotenv'
 
+// Đọc các biến môi trường từ file .env
+dotenv.config()
+
+const app = express()
 
 app.use(express.json())
 app.get('/', (req, res) => res.send('Hello World'))
 
 
+databaseService.run()
+    .catch(console.log)
+
 app.use('/users', usersRouter)
-app.listen(PORT, () => console.log('Server Start'))
+
+app.listen(process.env.PORT, () => console.log('Server Start'))
