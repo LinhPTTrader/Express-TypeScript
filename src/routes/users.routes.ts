@@ -3,8 +3,14 @@ import { RegisterValidator, ValidatorUser } from '~/middlewares/users.middleware
 import { LoginController, RegisterController } from '~/controllers/users.controllers'
 const usersRouter = Router()
 
-
+/**
+ * Description: Login
+ * Path: /login
+ * Method: POST
+ * Body: {name: string, email: string}
+ */
 usersRouter.post('/login', ValidatorUser, LoginController)
+
 
 
 
@@ -14,8 +20,6 @@ usersRouter.post('/login', ValidatorUser, LoginController)
  * Method: POST
  * Body: {name: string, email: string, password: string, confirm_password, date_of_birth: ISOString}
  */
-
-
 usersRouter.post('/register', RegisterValidator, RegisterController)
 
 export default usersRouter

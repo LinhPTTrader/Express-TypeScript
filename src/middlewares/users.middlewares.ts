@@ -1,6 +1,7 @@
 import { error } from "console"
 import { Request, Response, NextFunction } from "express"
 import { checkSchema } from "express-validator"
+import userService from "~/services/users.services"
 import { validate } from '~/utils/validation'
 
 
@@ -37,9 +38,16 @@ export const RegisterValidator = validate(checkSchema({
             }
         },
         trim: true, // Loại bỏ các dấu như dấu cách thừa
-        // custom: {
-        //     options: ()
-        // }
+        custom: {
+            options: async (value) => {
+                const result = await userService.checkEmail(value);
+                // console.log(result)
+                if (result) {
+                    throw new Error('Email đã tồn tại');
+                }
+                return true;
+            }
+        }
     },
     password: {
         notEmpty: true,
