@@ -4,6 +4,10 @@ import { RegisterRequestBody } from '~/models/request/User.requests';
 import { HashPassword } from '~/utils/crypto';
 import { SignToken } from '~/utils/jwt';
 import { TokenType } from '~/constants/enum';
+import { ObjectId } from 'mongodb';
+import { RefreshToken } from '~/models/schemas/RefreshToken.schema';
+import bcrypt from "bcrypt";
+import { USERS_MESSAGES } from '~/constants/messages';
 
 
 class UserService {
@@ -45,6 +49,28 @@ class UserService {
             }
         )
     }
+    async SaveRefreshToken(email: string, password: string) {
+        const result = await this.checkEmail(email);
+        if (result && bcrypt.compareSync(password, result.password)) {
+            const accessToken = await userService.SignAccessToken(result._id.toString());
+            const refreshToken = await userService.SignRefreshToken(result._id.toString());
+            const user = await databaseService.RefreshToken.findOne({ user_id: result._id });
+            if (user) {
+                // console.log(user._id)
+                await databaseService.RefreshToken.updateOne({ _id: user._id }, { $set: { refreshToken } })
+            } else {
+                await databaseService.RefreshToken.insertOne(
+                    new RefreshToken({ refreshToken, user_id: result._id })
+                )
+            }
+            return { message: USERS_MESSAGES.LOGIN_SUCCESS, accessToken, refreshToken }
+        }
+        return {
+            message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
+        }
+    }
+
 }
+
 const userService = new UserService();
 export default userService;
