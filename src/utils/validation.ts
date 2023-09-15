@@ -13,27 +13,16 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
         await validation.run(req);
 
         const errors = validationResult(req);
+        const firstError = Object.values(errors.mapped())[0];
         //Nếu không có lỗi thì Next
         if (errors.isEmpty()) {
             return next();
         }
-        // console.log('Errors:', errors)
-        const errorsObject = errors.mapped();
-
-
-        const entityError = new EntityError({ errors: {} });
-
-
-        for (const key in errorsObject) {
-            const { msg } = errorsObject[key]
-
-            // Kiểm tra xem phải lỗi do Validator hay không
-            if (msg instanceof ErrorWithStatus && msg.status !== HTTP_STATUS.UNPROCESSABLE_ENTITY) {     // "msg instanceof ErrorrWithStatus" kiểm xem biến msg có thuộc kiểu ErrorWithStatus hay không 
-                return next(msg)
-            }
-            entityError.errors[key] = errorsObject[key];
+        if (firstError.msg instanceof ErrorWithStatus && firstError.msg.status === 422) {
+            console.log('Errors:', firstError.msg)
+            return next(firstError.msg)
         }
-        console.log(entityError)
-        next(entityError)
+        console.log(firstError.msg)
+        next(firstError.msg)
     };
 };

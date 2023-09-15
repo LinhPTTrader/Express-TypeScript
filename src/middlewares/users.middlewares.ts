@@ -1,9 +1,13 @@
-import { error } from "console"
+import { result } from 'lodash';
+import { RefreshToken } from './../models/schemas/RefreshToken.schema';
 import { Request, Response, NextFunction } from "express"
-import { checkSchema } from "express-validator"
+import { body, checkSchema } from "express-validator"
+import { ObjectId } from 'mongodb';
+import { HTTP_STATUS } from "~/constants/httpStatus"
 import { USERS_MESSAGES } from "~/constants/messages"
 import { ErrorWithStatus } from "~/models/schemas/Errors"
 import userService from "~/services/users.services"
+import { VerifyToken } from "~/utils/jwt"
 import { validate } from '~/utils/validation'
 
 
@@ -51,7 +55,7 @@ export const RegisterValidator = validate(checkSchema({
                 const result = await userService.checkEmail(value);
                 // console.log(result)
                 if (result) {
-                    throw new ErrorWithStatus({ message: 'Email đã tồn tại', status: 422 });
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: 422 });
                 }
                 return true;
             }
@@ -69,14 +73,14 @@ export const RegisterValidator = validate(checkSchema({
                 minNumbers: 1,
                 returnScore: false
             },
-            errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG, status: 422 })
         },
         isLength: {
             options: {
                 min: 6,
                 max: 50
             },
-            errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: 422 })
         },
         trim: true // Loại bỏ các dấu như dấu cách thừa
     },
@@ -87,14 +91,14 @@ export const RegisterValidator = validate(checkSchema({
                 min: 6,
                 max: 50
             },
-            errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: 422 })
         },
         trim: true, // Loại bỏ các dấu như dấu cách thừa
         // Custom mật khẩu xem có trùng nhau không
         custom: {
             options: ((value, { req }) => {
                 if (value !== req.body.password) {
-                    throw new Error('Mật khẩu không trùng nhau')
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED, status: 422 })
                 }
                 return true
             })
@@ -109,3 +113,39 @@ export const RegisterValidator = validate(checkSchema({
         }
     }
 }))
+
+
+export const AccessTokenValidator = validate(checkSchema({
+    Authorization: {
+        custom: {
+            options: async (value, { req }) => {
+                const accessToken = (value || '').split(' ')[1]
+                if (!accessToken) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                } else {
+                    const id = (await VerifyToken(accessToken)).payload.userId
+                    req.params = id
+                    return true;
+                }
+            }
+        }
+    },
+
+}, ['headers']))
+
+export const RefreshTokenValidator = validate(checkSchema({
+    refreshToken: {
+        trim: true,
+        custom: {
+            options: async (value: string, { req }) => {
+                if (!value) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                } else {
+                    const id = (await VerifyToken(value)).payload.userId
+                    req.params = id
+                    return true;
+                }
+            }
+        }
+    }
+}, ['body']))

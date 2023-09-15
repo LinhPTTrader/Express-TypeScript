@@ -3,12 +3,17 @@ import usersRouter from './routes/users.routes'
 import databaseService from './services/database.services'
 import dotenv from 'dotenv'
 import { defaultErrorHandler } from './middlewares/errors.midlewares'
+import cors from 'cors'
+import cookieParser from 'cookie-parser';
 
 
 // Đọc các biến môi trường từ file .env
 dotenv.config()
 
 const app = express()
+
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
 
 databaseService.run()
     .catch(console.log)
