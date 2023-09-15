@@ -14,7 +14,6 @@ import { ErrorWithStatus } from '~/models/schemas/Errors';
 
 class UserService {
     async register(payload: RegisterRequestBody) {
-
         const result = await databaseService.Users.insertOne(
             new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: HashPassword(payload.password) })
         )
@@ -35,7 +34,9 @@ class UserService {
             },
             {
                 expiresIn: process.env.ACCESS_TOKEN_EXPRIRES_IN
-            }
+            },
+            process.env.JWT_SECRECT_ACCESS as string
+
         )
     }
     async SignRefreshToken(userId: string) {
@@ -49,7 +50,9 @@ class UserService {
             },
             {
                 expiresIn: process.env.REFRESH_TOKEN_EXPRIRES_IN
-            }
+            },
+            process.env.JWT_SECRECT_REFRESHTOKEN as string
+
         )
     }
     async SaveRefreshToken(email: string, password: string) {
@@ -82,6 +85,10 @@ class UserService {
     }
     async RemoveRefreshToken(refreshToken: string) {
         return await databaseService.RefreshToken.deleteOne({ refreshToken });
+    }
+
+    async VerifyEmail(_id: ObjectId) {
+        return await databaseService.Users.updateOne(_id, { $set: { email_verify_token: '', updated_at: new Date() } })
     }
 }
 

@@ -120,10 +120,11 @@ export const AccessTokenValidator = validate(checkSchema({
         custom: {
             options: async (value, { req }) => {
                 const accessToken = (value || '').split(' ')[1]
+                console.log(accessToken)
                 if (!accessToken) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
-                    const id = (await VerifyToken(accessToken)).payload.userId
+                    const id = (await VerifyToken(accessToken, process.env.JWT_SECRECT_ACCESS as string)).payload.userId
                     req.params = id
                     return true;
                 }
@@ -141,7 +142,28 @@ export const RefreshTokenValidator = validate(checkSchema({
                 if (!value) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
-                    const id = (await VerifyToken(value)).payload.userId
+                    const id = (await VerifyToken(value, process.env.JWT_SECRECT_REFRESHTOKEN as string)).payload.userId
+                    req.params = id
+                    return true;
+                }
+            }
+        }
+    }
+}, ['body']))
+
+
+export const EmailVerifyTokenValidator = validate(checkSchema({
+    emailVerifyToken: {
+        notEmpty: {
+            errorMessage: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED
+        },
+        trim: true,
+        custom: {
+            options: async (value: string, { req }) => {
+                if (!value) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                } else {
+                    const id = (await VerifyToken(value, process.env.JWT_EMAIL_SECRECT as string)).payload.userId
                     req.params = id
                     return true;
                 }
