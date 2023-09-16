@@ -1,5 +1,5 @@
-import { result } from 'lodash';
-import { RefreshToken } from './../models/schemas/RefreshToken.schema';
+
+
 import { Request, Response, NextFunction } from "express"
 import { body, checkSchema } from "express-validator"
 import { ObjectId } from 'mongodb';
@@ -9,6 +9,7 @@ import { ErrorWithStatus } from "~/models/schemas/Errors"
 import userService from "~/services/users.services"
 import { VerifyToken } from "~/utils/jwt"
 import { validate } from '~/utils/validation'
+
 
 
 export const ValidatorUser = (req: Request, res: Response, next: NextFunction) => {
@@ -25,23 +26,23 @@ export const ValidatorUser = (req: Request, res: Response, next: NextFunction) =
 export const RegisterValidator = validate(checkSchema({
     name: {
         notEmpty: {
-            errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isLength: {
             options: {
                 min: 1,
                 max: 100
             },
-            errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         trim: true // Loại bỏ các dấu như dấu cách thừa
     },
     email: {
         notEmpty: {
-            errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isEmail: {
-            errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_INVALID, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isLength: {
             options: {
@@ -55,7 +56,7 @@ export const RegisterValidator = validate(checkSchema({
                 const result = await userService.checkEmail(value);
                 // console.log(result)
                 if (result) {
-                    throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: 422 });
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY });
                 }
                 return true;
             }
@@ -63,7 +64,7 @@ export const RegisterValidator = validate(checkSchema({
     },
     password: {
         notEmpty: {
-            errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isStrongPassword: {
             options: {
@@ -73,32 +74,34 @@ export const RegisterValidator = validate(checkSchema({
                 minNumbers: 1,
                 returnScore: false
             },
-            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG, status: 422 })
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isLength: {
             options: {
                 min: 6,
                 max: 50
             },
-            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: 422 })
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         trim: true // Loại bỏ các dấu như dấu cách thừa
     },
     confirm_password: {
-        notEmpty: true,
+        notEmpty: {
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+        },
         isLength: {
             options: {
                 min: 6,
                 max: 50
             },
-            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: 422 })
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         trim: true, // Loại bỏ các dấu như dấu cách thừa
         // Custom mật khẩu xem có trùng nhau không
         custom: {
             options: ((value, { req }) => {
                 if (value !== req.body.password) {
-                    throw new ErrorWithStatus({ message: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED, status: 422 })
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
                 }
                 return true
             })
@@ -171,3 +174,66 @@ export const EmailVerifyTokenValidator = validate(checkSchema({
         }
     }
 }, ['body']))
+
+
+export const ChangePasswordValidator = validate(checkSchema({
+    password: {
+        notEmpty: {
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: 422 })
+        },
+        trim: true,
+        custom: {
+            options: async (value: string, { req }) => {
+                const id = new ObjectId(req.params?.toString())
+                const result = await userService.CheckPassword(id, value)
+                if (!result) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                }
+                return true
+            }
+        }
+    },
+    newPassword: {
+        notEmpty: {
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        isStrongPassword: {
+            options: {
+                minLength: 6,
+                minLowercase: 1,
+                minSymbols: 1,
+                minNumbers: 1,
+                returnScore: false
+            },
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG, status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        isLength: {
+            options: {
+                min: 6,
+                max: 50
+            },
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        trim: true // Loại bỏ các dấu như dấu cách thừa
+    },
+    confirmNewPassword: {
+        notEmpty: true,
+        isLength: {
+            options: {
+                min: 6,
+                max: 50
+            },
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50, status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        trim: true, // Loại bỏ các dấu như dấu cách thừa
+        // Custom mật khẩu xem có trùng nhau không
+        custom: {
+            options: ((value, { req }) => {
+                if (value !== req.body.newPassword) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                }
+                return true
+            })
+        }
+    },
+}))

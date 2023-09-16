@@ -1,4 +1,5 @@
-import User from '~/models/schemas/User.schema';
+import { result } from 'lodash';
+import User, { UserVerifyStatus } from '~/models/schemas/User.schema';
 import databaseService from "./database.services";
 import { RegisterRequestBody } from '~/models/request/User.requests';
 import { HashPassword } from '~/utils/crypto';
@@ -55,6 +56,22 @@ class UserService {
 
         )
     }
+    async SignEmailVerifyToken(userId: string) {
+        // console.log(process.env.REFRESH_TOKEN_EXPRIRES_IN)
+        return SignToken(
+            {
+                payload: {
+                    userId,
+                    token_type: TokenType.EmailVerifyToken
+                }
+            },
+            {
+                expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPRIRES_IN
+            },
+            process.env.JWT_EMAIL_SECRECT as string
+
+        )
+    }
     async SaveRefreshToken(email: string, password: string) {
         const result = await this.checkEmail(email);
         if (result && bcrypt.compareSync(password, result.password)) {
@@ -88,7 +105,21 @@ class UserService {
     }
 
     async VerifyEmail(_id: ObjectId) {
-        return await databaseService.Users.updateOne(_id, { $set: { email_verify_token: '', updated_at: new Date() } })
+        return await databaseService.Users.updateOne({ _id }, { $set: { email_verify_token: '', updated_at: new Date() } })
+    }
+    async updateVerifyEmail(_id: ObjectId) {
+        return await databaseService.Users.updateOne({ _id }, { $set: { email_verify_token: '', verify: UserVerifyStatus.Verified, updated_at: new Date() } })
+    }
+    async CheckPassword(_id: ObjectId, password: string) {
+        const result = await databaseService.Users.findOne(_id)
+        if (result && bcrypt.compareSync(password, result.password)) {
+            return true
+        }
+        return false
+    }
+    async UpdatePassword(_id: ObjectId, newPassword: string) {
+        const password = HashPassword(newPassword);
+        return await databaseService.Users.updateOne({ _id }, { $set: { password, updated_at: new Date() } })
     }
 }
 

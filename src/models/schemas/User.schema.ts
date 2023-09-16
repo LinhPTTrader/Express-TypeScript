@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb"
 
-enum UserVerifyStatus {
+export enum UserVerifyStatus {
     Unverified, // Chưa xác thực email
     Verified, // Đã xác thực Email
     Banner // Khóa mõm

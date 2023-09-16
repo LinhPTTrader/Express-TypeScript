@@ -53,33 +53,39 @@ export const FetchAcccountController = async (req: Request<ParamsDictionary, any
 
 export const EmailVerifyController = async (req: Request<ParamsDictionary, any, RegisterRequestBody>, res: Response, next: NextFunction) => {
     const _id = new ObjectId(req.params.toString())
-    userService.getUser(_id)
+    userService.updateVerifyEmail(_id)
         .then(result => {
-            if (!result) {
-                res.status(HTTP_STATUS.NOT_FOUND).json(USERS_MESSAGES.USER_NOT_FOUND)
-            } else if (result.email_verify_token === '') {
-                res.status(HTTP_STATUS.OK).json(USERS_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE)
-            } else {
-                userService.VerifyEmail(_id)
-                    .then((result2) => console.log(result2))
-                    .catch(err2 => next(err2))
+            if (result) {
+                res.status(HTTP_STATUS.OK).json({ message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS })
             }
         })
         .catch(err => next(err))
+
 }
 
 export const RequireVerifyEmailController = async (req: Request<ParamsDictionary, any, RegisterRequestBody>, res: Response, next: NextFunction) => {
     const _id = new ObjectId(req.params.toString())
+    const emailVerifyToken = await userService.SignEmailVerifyToken(_id.toString())
     userService.getUser(_id)
         .then(result => {
             if (result?.verify === 0) {
                 // Đoạn này đáng ra là phải gửi Email cho User và họ xác nhận thông qua email_verify_token
-                res.status(HTTP_STATUS.OK).json("Email chua Verify")
+                res.status(HTTP_STATUS.OK).json({ emailVerifyToken })
             } else if (result?.verify === 1) {
-                res.status(HTTP_STATUS.NO_CONTENT).json(USERS_MESSAGES.EMAIL_VERIFY_SUCCESS)
+                res.status(HTTP_STATUS.OK).json({ message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS })
             } else {
-                res.status(HTTP_STATUS.NOT_FOUND).json(USERS_MESSAGES.EMAIL_IS_REQUIRED)
+                res.status(HTTP_STATUS.NOT_FOUND).json({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED })
             }
         })
         .catch(error => next(error))
+}
+
+export const ChangePasswordController = async (req: Request, res: Response, next: NextFunction) => {
+    const id = new ObjectId(req.params.toString());
+    const newPassword = req.body.newPassword;
+    userService.UpdatePassword(id, newPassword)
+        .then(() => {
+            res.status(200).json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS })
+        })
+        .catch(err => next(err))
 }
