@@ -2,12 +2,13 @@
 import { NextFunction, Request, Response } from "express"
 import userService from "~/services/users.services";
 import { ParamsDictionary } from "express-serve-static-core"
-import { LogoutReqBody, RegisterRequestBody } from "~/models/request/User.requests";
+import { ForgotPasswordReqBody, LogoutReqBody, RegisterRequestBody } from "~/models/request/User.requests";
 import { HTTP_STATUS } from "~/constants/httpStatus";
 import { ObjectId } from "mongodb";
 import { result } from "lodash";
 import { USERS_MESSAGES } from "~/constants/messages";
 import { error } from "console";
+import User from "~/models/schemas/User.schema";
 
 
 export const LoginController = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,6 +36,7 @@ export const RegisterController = async (req: Request<ParamsDictionary, any, Reg
 
 export const LogoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response, next: NextFunction) => {
     const { refreshToken } = req.body;
+    // console.log('Logout')
     userService.RemoveRefreshToken(refreshToken)
         .then(result => res.status(HTTP_STATUS.OK).json(result))
         .catch(err => next(err))
@@ -84,8 +86,37 @@ export const ChangePasswordController = async (req: Request, res: Response, next
     const id = new ObjectId(req.params.toString());
     const newPassword = req.body.newPassword;
     userService.UpdatePassword(id, newPassword)
-        .then(() => {
-            res.status(200).json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS })
+        .then((result) => {
+            res.status(HTTP_STATUS.OK).json(result)
+        })
+        .catch(err => next(err))
+}
+
+export const ForgotPasswordController = async (req: Request<ParamsDictionary, any, ForgotPasswordReqBody>, res: Response, next: NextFunction) => {
+    const email = req.body.email;
+    const id = new ObjectId(req.params.toString())
+    userService.ForgotPassword(email, id)
+        .then(result => {
+            res.json(result)
+        })
+        .catch(err => next(err))
+
+}
+export const VerifyForgotPasswordController = async (req: Request, res: Response, next: NextFunction) => {
+    const { forgot_password_token } = req.body
+    const id = new ObjectId(req.params.toString())
+    userService.VerifyForgotPassword(id, forgot_password_token)
+        // Điều hướng đến reset password
+        .then(result => res.status(HTTP_STATUS.OK).json(result))
+        .catch(err => next(err))
+}
+
+export const ResetPasswordController = async (req: Request, res: Response, next: NextFunction) => {
+    const { new_password } = req.body;
+    const id = new ObjectId(req.params.toString());
+    userService.UpdatePassword(id, new_password)
+        .then(result => {
+            res.status(HTTP_STATUS.OK).json(result)
         })
         .catch(err => next(err))
 }

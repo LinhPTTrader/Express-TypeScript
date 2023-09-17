@@ -20,7 +20,6 @@ export const SignToken = (payload: string | Buffer | object, options: jwt.SignOp
 
 export const VerifyToken = (token: string, secrect: string) => {
     return new Promise<jwt.JwtPayload>((resolve, reject) => {
-        // console.log(token)
         jwt.verify(token, secrect, (error, decoded) => {
             if (error) {
                 throw reject(new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED }))

@@ -9,3 +9,7 @@ export interface RegisterRequestBody {
 export interface LogoutReqBody {
     refreshToken: string
 }
+
+export interface ForgotPasswordReqBody {
+    email: string
+}

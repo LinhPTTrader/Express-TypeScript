@@ -72,12 +72,30 @@ class UserService {
 
         )
     }
+    async SignForgotPasswordToken(userId: string) {
+        // console.log(process.env.REFRESH_TOKEN_EXPRIRES_IN)
+        return SignToken(
+            {
+                payload: {
+                    userId,
+                    token_type: TokenType.ForgotPasswordToken
+                }
+            },
+            {
+                expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPRIRES_IN
+            },
+            process.env.JWT_FORGOT_PASSWORD_SECRECT as string
+
+        )
+    }
     async SaveRefreshToken(email: string, password: string) {
         const result = await this.checkEmail(email);
+        // console.log(result)
         if (result && bcrypt.compareSync(password, result.password)) {
-            const accessToken = await userService.SignAccessToken(result._id.toString());
-            const refreshToken = await userService.SignRefreshToken(result._id.toString());
+            const accessToken = await this.SignAccessToken(result._id.toString());
+            const refreshToken = await this.SignRefreshToken(result._id.toString());
             const user = await databaseService.RefreshToken.findOne({ user_id: result._id });
+
             if (user) {
                 // console.log(user._id)
                 await databaseService.RefreshToken.updateOne({ _id: user._id }, { $set: { refreshToken } })
@@ -119,7 +137,31 @@ class UserService {
     }
     async UpdatePassword(_id: ObjectId, newPassword: string) {
         const password = HashPassword(newPassword);
-        return await databaseService.Users.updateOne({ _id }, { $set: { password, updated_at: new Date() } })
+        await databaseService.Users.updateOne({ _id }, { $set: { password, updated_at: new Date() } })
+        return {
+            message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS
+        }
+    }
+    async ForgotPassword(email: string, id: ObjectId) {
+        const forgot_password_token = await this.SignForgotPasswordToken(id.toString());
+        await databaseService.Users.updateOne({ _id: id }, [{
+            $set: {
+                forgot_password_token,
+                updated_at: '$$NOW'
+            }
+        }])
+        // Gửi email kèm đường link để người dùng click vào link (Sau này dùng amazon aws để gởi email)
+
+        return { message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD, token: forgot_password_token }
+    }
+    async VerifyForgotPassword(id: ObjectId, token: string) {
+        const user = await databaseService.Users.findOne({ _id: id })
+        // console.log(user?.forgot_password_token)
+        // console.log(token)
+        if (user?.forgot_password_token == token) {
+            return true
+        }
+        return false
     }
 }
 

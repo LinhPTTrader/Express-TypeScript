@@ -15,7 +15,7 @@ interface UserType {
     updated_at?: Date
     email_verify_token?: string // Jwt or null
     // Xác thực email khi đăng ký
-    fogot_password_token?: string // Jwt or null
+    forgot_password_token?: string // Jwt or null
     // Đổi lại mật khẩu
     verify?: UserVerifyStatus
 
@@ -37,7 +37,7 @@ export default class User {
     updated_at: Date
     email_verify_token: string // Jwt or null
     // Xác thực email khi đăng ký
-    fogot_password_token: string // Jwt or null
+    forgot_password_token: string // Jwt or null
     // Đổi lại mật khẩu
     verify: UserVerifyStatus
 
@@ -56,7 +56,7 @@ export default class User {
         this.created_at = user.created_at || new Date()
         this.updated_at = user.updated_at || new Date()
         this.email_verify_token = user.email_verify_token || ''
-        this.fogot_password_token = user.fogot_password_token || ''
+        this.forgot_password_token = user.forgot_password_token || ''
         this.verify = user.verify || UserVerifyStatus.Unverified
         this.bio = user.bio || ''
         this.location = user.location || ''

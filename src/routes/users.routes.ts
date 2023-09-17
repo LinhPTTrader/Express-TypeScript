@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { AccessTokenValidator, ChangePasswordValidator, EmailVerifyTokenValidator, RefreshTokenValidator, RegisterValidator, ValidatorUser } from '~/middlewares/users.middlewares'
-import { ChangePasswordController, EmailVerifyController, FetchAcccountController, LoginController, LogoutController, RegisterController, RequireVerifyEmailController } from '~/controllers/users.controllers'
+import { AccessTokenValidator, ChangePasswordValidator, EmailValidator, EmailVerifyTokenValidator, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, ValidatorUser } from '~/middlewares/users.middlewares'
+import { ChangePasswordController, EmailVerifyController, FetchAcccountController, ForgotPasswordController, LoginController, LogoutController, RegisterController, RequireVerifyEmailController, ResetPasswordController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -65,5 +65,28 @@ usersRouter.post('/verify-email', AccessTokenValidator, EmailVerifyTokenValidato
  */
 usersRouter.post('/change-password', AccessTokenValidator, ChangePasswordValidator, ChangePasswordController)
 
+/**
+ * Description:  Forgot Password
+ * Path: /forgot-password
+ * Method: POST
+ * Body: {email: string}
+ */
+usersRouter.post('/forgot-password', EmailValidator, ForgotPasswordController)
+
+/**
+ * Description:  Verify Forgot Password
+ * Path: /verify-forgot-password
+ * Method: POST
+ * Body: {forgot_password_token: string}
+ */
+usersRouter.post('/verify-forgot-password', ForgotPasswordTokenValidator, VerifyForgotPasswordController)
+
+/**
+ * Description: Reset Password
+ * Path: /reset-password
+ * Method: POST
+ * Body: {forgot_password_token: string, new_password, confirm_new_password}
+ */
+usersRouter.post('/reset-password', ForgotPasswordTokenValidator, ResetPasswordTokenValidator, ResetPasswordController)
 
 export default usersRouter
