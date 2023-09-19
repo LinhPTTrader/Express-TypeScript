@@ -1,0 +1,1 @@
+export const REGEX_USERNAME = /^@?(\w){1,15}$/

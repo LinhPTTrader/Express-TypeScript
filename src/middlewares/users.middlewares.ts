@@ -5,7 +5,9 @@ import { body, check, checkSchema } from "express-validator"
 import { ObjectId } from 'mongodb';
 import { HTTP_STATUS } from "~/constants/httpStatus"
 import { USERS_MESSAGES } from "~/constants/messages"
+import { REGEX_USERNAME } from "~/constants/regex";
 import { ErrorWithStatus } from "~/models/schemas/Errors"
+import databaseService from "~/services/database.services";
 import userService from "~/services/users.services"
 import { VerifyToken } from "~/utils/jwt"
 import { validate } from '~/utils/validation'
@@ -53,7 +55,7 @@ export const RegisterValidator = validate(checkSchema({
         trim: true, // Loại bỏ các dấu như dấu cách thừa
         custom: {
             options: async (value) => {
-                const result = await userService.checkEmail(value);
+                const result = await userService.CheckEmail(value);
                 // console.log(result)
                 if (result) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY });
@@ -256,7 +258,7 @@ export const EmailValidator = validate(checkSchema({
         trim: true, // Loại bỏ các dấu như dấu cách thừa
         custom: {
             options: async (value, { req }) => {
-                const result = await userService.checkEmail(value);
+                const result = await userService.CheckEmail(value);
                 // console.log(result)
                 if (!result) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY });
@@ -363,6 +365,35 @@ export const UserUpdateValidator = validate(
             isString: {
                 errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_MUST_BE_A_STRING, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
             },
+            custom: {
+                options: async (value, { req }) => {
+                    if (!REGEX_USERNAME.test(value)) {
+                        throw new ErrorWithStatus({ message: USERS_MESSAGES.USERNAME_INVALID, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+                    }
+                    const user = databaseService.Users.findOne({ username: value })
+                    if (!user) {
+                        throw new ErrorWithStatus({ message: USERS_MESSAGES.USERNAME_EXISTED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+                    }
+                    return true
+                }
+            }
         },
     }, ['body'])
 )
+
+export const FollowerValidation = validate(checkSchema({
+    follower_user_id: {
+        custom: {
+            options: async (value, { req }) => {
+                if (!ObjectId.isValid(value)) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.INVALID_USER_ID, status: HTTP_STATUS.NOT_FOUND })
+                }
+                const follower_user = await databaseService.Users.findOne({ _id: new ObjectId(value) })
+                console.log('flo: ', follower_user)
+                if (follower_user === null) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.USER_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
+                }
+            }
+        }
+    }
+}, ['body']))

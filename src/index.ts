@@ -5,6 +5,8 @@ import dotenv from 'dotenv'
 import { defaultErrorHandler } from './middlewares/errors.midlewares'
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
+import mediaRouter from './routes/media.routes'
+
 
 
 // Đọc các biến môi trường từ file .env
@@ -22,6 +24,7 @@ app.use(express.json())
 
 app.get('/', (req, res) => res.send('Hello World'))
 
+app.use('/medias', mediaRouter)
 app.use('/users', usersRouter)
 
 //Default Error Handler (Tất cả lỗi Error sẽ mặc định đưa về đây)

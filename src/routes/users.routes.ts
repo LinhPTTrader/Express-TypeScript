@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { AccessTokenValidator, ChangePasswordValidator, EmailValidator, EmailVerifyTokenValidator, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
-import { ChangePasswordController, EmailVerifyController, FetchAcccountController, ForgotPasswordController, LoginController, LogoutController, RegisterController, RequireVerifyEmailController, ResetPasswordController, UpdateProfileController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
+import { AccessTokenValidator, ChangePasswordValidator, EmailValidator, EmailVerifyTokenValidator, FollowerValidation, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
+import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, LoginController, LogoutController, RegisterController, RequireVerifyEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -91,18 +91,18 @@ usersRouter.post('/reset-password', ForgotPasswordTokenValidator, ResetPasswordT
 
 /**
  * Description:  Get profile
- * Path: /get-profile
+ * Path: /profile
  * Method: GET
  * Body: {}
  */
-////////
+usersRouter.get('/profile', AccessTokenValidator, GetProfileController)
 
 
 /**
  * Description:  Update Profile
  * Path: /update-profile
  * Method: PATCH
- *Header: {Authorization: Bearer: <accessToken>}
+ * Header: {Authorization: Bearer: <accessToken>}
  * Body: {name: string, date_of_birth: Date, bio: string, location: string, website: string,
         username: string,
         avatar: string,
@@ -112,4 +112,23 @@ usersRouter.post('/reset-password', ForgotPasswordTokenValidator, ResetPasswordT
 usersRouter.patch('/update-profile', UserUpdateValidator, AccessTokenValidator, UpdateProfileController)
 
 
+
+/**
+ * Description:  Follower User
+ * Path: /follower
+ * Method: GET
+ * Header: {Authorization: Bearer: <accessToken>}
+ * Body: { follwer_user_id: ObjectId}
+ */
+usersRouter.post('/follower', AccessTokenValidator, FollowerValidation, FollowerController)
+
+
+/**
+ * Description:  Follower User
+ * Path: /follower
+ * Method: GET
+ * Header: {Authorization: Bearer: <accessToken>}
+ * Body: { follower_user_id: ObjectId}
+ */
+usersRouter.post('/unfollower', AccessTokenValidator, FollowerValidation, UnFollowerController)
 export default usersRouter

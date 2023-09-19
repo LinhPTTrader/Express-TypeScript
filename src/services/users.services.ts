@@ -1,3 +1,4 @@
+import { Follower } from './../models/schemas/Follower.schema';
 import { pick, result } from 'lodash';
 import User, { UserUpdate, UserVerifyStatus } from '~/models/schemas/User.schema';
 import databaseService from "./database.services";
@@ -14,14 +15,17 @@ import { ErrorWithStatus } from '~/models/schemas/Errors';
 
 
 class UserService {
-    async register(payload: RegisterRequestBody) {
+    async Register(payload: RegisterRequestBody) {
         const result = await databaseService.Users.insertOne(
             new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: HashPassword(payload.password) })
+        )
+        await databaseService.Follower.insertOne(
+            { user_id: result.insertedId, follower_user_id: [], created_at: new Date() }
         )
         return { message: USERS_MESSAGES.REGISTER_SUCCESS, result };
 
     }
-    async checkEmail(email: string) {
+    async CheckEmail(email: string) {
         return await databaseService.Users.findOne({ email })
     }
 
@@ -89,7 +93,7 @@ class UserService {
         )
     }
     async SaveRefreshToken(email: string, password: string) {
-        const result = await this.checkEmail(email);
+        const result = await this.CheckEmail(email);
         // console.log(result)
         if (result && bcrypt.compareSync(password, result.password)) {
             const accessToken = await this.SignAccessToken(result._id.toString());
@@ -110,8 +114,10 @@ class UserService {
             throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT, status: 422 })
         }
     }
-    async getUser(_id: ObjectId) {
-        return await databaseService.Users.findOne({ _id });
+    async GetUser(_id: ObjectId) {
+        const result = await databaseService.Users.findOne({ _id });
+        const data = pick(result, ['name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username', 'created_at', 'verify'])
+        return data
     }
     async RemoveRefreshToken(refreshToken: string) {
         return await databaseService.RefreshToken.deleteOne({ refreshToken });
@@ -120,7 +126,7 @@ class UserService {
     async VerifyEmail(_id: ObjectId) {
         return await databaseService.Users.updateOne({ _id }, { $set: { email_verify_token: '', updated_at: new Date() } })
     }
-    async updateVerifyEmail(_id: ObjectId) {
+    async UpdateVerifyEmail(_id: ObjectId) {
         return await databaseService.Users.updateOne({ _id }, { $set: { email_verify_token: '', verify: UserVerifyStatus.Verified, updated_at: new Date() } })
     }
     async CheckPassword(_id: ObjectId, password: string) {
@@ -168,12 +174,30 @@ class UserService {
     async UpdateUser(_id: ObjectId, user: UserUpdate) {
 
         const data = pick(user, ['name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username'])
-        await databaseService.Users.updateOne({ _id }, {
+
+        const result = await databaseService.Users.updateOne({ _id }, {
             $set: {
                 ...data, updated_at: new Date()
             }
         })
-        return { message: USERS_MESSAGES.UPDATE_ME_SUCCESS, status: HTTP_STATUS.UNAUTHORIZED }
+        if (result.acknowledged && result.modifiedCount > 0) {
+            return { message: USERS_MESSAGES.UPDATE_ME_SUCCESS, status: HTTP_STATUS.OK }
+        }
+        return { message: USERS_MESSAGES.USER_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND }
+    }
+    async Follower(_id: ObjectId, user_id: ObjectId) {
+        await databaseService.Follower.updateOne({ user_id: _id }, { $addToSet: { follower_user_id: user_id } })
+        return { message: USERS_MESSAGES.FOLLOW_SUCCESS, status: HTTP_STATUS.OK }
+    }
+    async UnFollower(_id: ObjectId, user_id: ObjectId) {
+        await databaseService.Follower.updateOne({ user_id: _id }, { $pull: { follower_user_id: user_id } })
+        return { message: USERS_MESSAGES.UNFOLLOW_SUCCESS, status: HTTP_STATUS.OK }
+    }
+
+
+    async Like(_id: ObjectId, user_id: ObjectId) {
+        await databaseService.Follower.updateOne({ user_id: _id }, { $addToSet: { follower_user_id: user_id } })
+        return { message: USERS_MESSAGES.FOLLOW_SUCCESS, status: HTTP_STATUS.OK }
     }
 }
 

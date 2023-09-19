@@ -4,6 +4,7 @@ import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb';
 import User from '~/models/schemas/User.schema';
 import dotenv from 'dotenv'
 import { RefreshToken } from '~/models/schemas/RefreshToken.schema';
+import { Follower } from '~/models/schemas/Follower.schema';
 // Đọc các biến môi trường từ file .env
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.evhfunv.mongodb.net/?retryWrites=true&w=majority`;
@@ -31,6 +32,9 @@ class DatabaseService {
 
     get RefreshToken(): Collection<RefreshToken> {
         return this.db.collection(process.env.REFRESH_TOKEN as string)
+    }
+    get Follower(): Collection<Follower> {
+        return this.db.collection(process.env.FOLLOWER_COLECTION as string)
     }
 }
 
