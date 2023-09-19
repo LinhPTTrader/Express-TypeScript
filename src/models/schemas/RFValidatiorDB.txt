@@ -1,0 +1,24 @@
+{
+    $jsonSchema: {
+        bsonType: "object",
+            title: "RefreshToken Validation",
+                properties: {
+            _id: {
+                bsonType: "objectId",
+                    description: "_id must be a ObjectId and is required"
+            },
+            refreshToken: {
+                bsonType: "string",
+                    description: "refreshToken must be a String and is required"
+            },
+            created_at: {
+                bsonType: "date",
+                    description: "created_at must be a date and is required"
+            },
+            user_id: {
+                bsonType: "objectId",
+                    description: "_id must be a ObjectId and is required"
+            }
+        }
+    }
+}

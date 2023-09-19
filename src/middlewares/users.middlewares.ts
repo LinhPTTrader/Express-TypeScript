@@ -123,7 +123,6 @@ export const AccessTokenValidator = validate(checkSchema({
         custom: {
             options: async (value, { req }) => {
                 const accessToken = (value || '').split(' ')[1]
-                // console.log(accessToken)
                 if (!accessToken) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
@@ -142,6 +141,7 @@ export const RefreshTokenValidator = validate(checkSchema({
         trim: true,
         custom: {
             options: async (value: string, { req }) => {
+                console.log("refresh:", value)
                 if (!value) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
@@ -242,7 +242,7 @@ export const ChangePasswordValidator = validate(checkSchema({
 export const EmailValidator = validate(checkSchema({
     email: {
         notEmpty: {
-            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_INVALID, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         isEmail: {
             errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_INVALID, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
@@ -336,4 +336,33 @@ export const ResetPasswordTokenValidator = validate(
             }
         },
     })
+)
+
+export const UserUpdateValidator = validate(
+    checkSchema({
+        name: {
+            notEmpty: {
+                errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            },
+            isString: {
+                errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_MUST_BE_A_STRING, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            },
+            isLength: {
+                options: {
+                    min: 1,
+                    max: 100
+                },
+                errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            },
+            trim: true
+        },
+        username: {
+            notEmpty: {
+                errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.USERNAME_INVALID, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            },
+            isString: {
+                errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.NAME_MUST_BE_A_STRING, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+            },
+        },
+    }, ['body'])
 )

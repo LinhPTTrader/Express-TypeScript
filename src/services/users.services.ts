@@ -1,7 +1,7 @@
-import { result } from 'lodash';
-import User, { UserVerifyStatus } from '~/models/schemas/User.schema';
+import { pick, result } from 'lodash';
+import User, { UserUpdate, UserVerifyStatus } from '~/models/schemas/User.schema';
 import databaseService from "./database.services";
-import { RegisterRequestBody } from '~/models/request/User.requests';
+import { RegisterRequestBody, UpdateUserRequestBody } from '~/models/request/User.requests';
 import { HashPassword } from '~/utils/crypto';
 import { SignToken } from '~/utils/jwt';
 import { TokenType } from '~/constants/enum';
@@ -104,12 +104,7 @@ class UserService {
                     new RefreshToken({ refreshToken, user_id: result._id })
                 )
             }
-            const content = {
-                id: result._id,
-                name: result.name,
-                email: result.email,
-                date_of_birth: result.date_of_birth
-            }
+            const { password, forgot_password_token, email_verify_token, ...content } = result as User
             return { message: USERS_MESSAGES.LOGIN_SUCCESS, accessToken, refreshToken, content }
         } else {
             throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT, status: 422 })
@@ -137,7 +132,7 @@ class UserService {
     }
     async UpdatePassword(_id: ObjectId, newPassword: string) {
         const password = HashPassword(newPassword);
-        await databaseService.Users.updateOne({ _id }, { $set: { password, updated_at: new Date() } })
+        await databaseService.Users.updateOne({ _id }, { $set: { password, updated_at: new Date(), forgot_password_token: '' } })
         return {
             message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS
         }
@@ -162,6 +157,23 @@ class UserService {
             return true
         }
         return false
+    }
+    async CheckRefreshTokenAndUserId(id: ObjectId, token: string) {
+        const result = await databaseService.RefreshToken.findOne({ user_id: id });
+        if (result?.refreshToken === token) {
+            return true
+        }
+        return false
+    }
+    async UpdateUser(_id: ObjectId, user: UserUpdate) {
+
+        const data = pick(user, ['name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username'])
+        await databaseService.Users.updateOne({ _id }, {
+            $set: {
+                ...data, updated_at: new Date()
+            }
+        })
+        return { message: USERS_MESSAGES.UPDATE_ME_SUCCESS, status: HTTP_STATUS.UNAUTHORIZED }
     }
 }
 

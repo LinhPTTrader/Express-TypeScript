@@ -66,3 +66,34 @@ export default class User {
         this.cover_photo = user.cover_photo || ''
     }
 }
+interface UserUpdateType {
+    name: string,
+    date_of_birth: Date,
+    bio: string,
+    location: string,
+    website: string,
+    username: string,
+    avatar: string,
+    cover_photo: string,
+}
+
+export class UserUpdate {
+    name: string
+    date_of_birth: Date
+    bio: string
+    location: string
+    website: string
+    username: string
+    avatar: string
+    cover_photo: string
+    constructor(userUpdate: UserUpdateType) {
+        this.name = userUpdate.name || '',
+            this.date_of_birth = userUpdate.date_of_birth || new Date(),
+            this.bio = userUpdate.bio || ''
+        this.location = userUpdate.location || ''
+        this.website = userUpdate.website || ''
+        this.username = userUpdate.username || ''
+        this.avatar = userUpdate.avatar || ''
+        this.cover_photo = userUpdate.cover_photo || ''
+    }
+}
