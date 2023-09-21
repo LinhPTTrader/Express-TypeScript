@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import usersRouter from './routes/users.routes'
 import databaseService from './services/database.services'
 import dotenv from 'dotenv'
@@ -6,6 +6,9 @@ import { defaultErrorHandler } from './middlewares/errors.midlewares'
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import mediaRouter from './routes/media.routes'
+import { initFolder } from './utils/file'
+import path from 'path'
+import staticRouter from './routes/static.routes'
 
 
 
@@ -20,12 +23,17 @@ app.use(cookieParser());
 databaseService.run()
     .catch(console.log)
 
+initFolder() // Tạo folder nếu nó chưa có
+
 app.use(express.json())
 
 app.get('/', (req, res) => res.send('Hello World'))
 
 app.use('/medias', mediaRouter)
 app.use('/users', usersRouter)
+
+// Static file
+app.use('/static', staticRouter)
 
 //Default Error Handler (Tất cả lỗi Error sẽ mặc định đưa về đây)
 app.use(defaultErrorHandler)

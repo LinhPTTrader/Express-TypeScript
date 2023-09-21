@@ -1,5 +1,3 @@
-import { RefreshToken } from '~/models/schemas/RefreshToken.schema';
-
 import { NextFunction, Request, Response } from "express"
 import userService from "~/services/users.services";
 import { ParamsDictionary } from "express-serve-static-core"
@@ -7,9 +5,8 @@ import { ForgotPasswordReqBody, LogoutReqBody, RegisterRequestBody, UpdateUserRe
 import { HTTP_STATUS } from "~/constants/httpStatus";
 import { ObjectId } from "mongodb";
 import { USERS_MESSAGES } from "~/constants/messages";
-import User from '~/models/schemas/User.schema';
 import { ErrorWithStatus } from '~/models/schemas/Errors';
-import { result } from 'lodash';
+
 
 
 export const LoginController = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +26,7 @@ export const RegisterController = async (req: Request<ParamsDictionary, any, Reg
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 
@@ -38,7 +35,7 @@ export const LogoutController = async (req: Request<ParamsDictionary, any, Logou
     // console.log('Logout')
     userService.RemoveRefreshToken(refreshToken)
         .then(result => res.status(HTTP_STATUS.OK).json(result))
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 
 }
 
@@ -58,7 +55,7 @@ export const FetchAcccountController = async (req: Request, res: Response, next:
                 res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED })
             }
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const EmailVerifyController = async (req: Request<ParamsDictionary, any, RegisterRequestBody>, res: Response, next: NextFunction) => {
@@ -69,7 +66,7 @@ export const EmailVerifyController = async (req: Request<ParamsDictionary, any, 
                 res.status(HTTP_STATUS.OK).json({ message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS })
             }
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 
 }
 
@@ -87,7 +84,7 @@ export const RequireVerifyEmailController = async (req: Request<ParamsDictionary
                 res.status(HTTP_STATUS.NOT_FOUND).json({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED })
             }
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const ChangePasswordController = async (req: Request, res: Response, next: NextFunction) => {
@@ -97,7 +94,7 @@ export const ChangePasswordController = async (req: Request, res: Response, next
         .then((result) => {
             res.status(HTTP_STATUS.OK).json(result)
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const ForgotPasswordController = async (req: Request<ParamsDictionary, any, ForgotPasswordReqBody>, res: Response, next: NextFunction) => {
@@ -107,7 +104,7 @@ export const ForgotPasswordController = async (req: Request<ParamsDictionary, an
         .then(result => {
             res.json(result)
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 
 }
 export const VerifyForgotPasswordController = async (req: Request, res: Response, next: NextFunction) => {
@@ -116,7 +113,7 @@ export const VerifyForgotPasswordController = async (req: Request, res: Response
     userService.VerifyForgotPassword(id, forgot_password_token)
         // Điều hướng đến reset password
         .then(result => res.status(HTTP_STATUS.OK).json(result))
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const ResetPasswordController = async (req: Request, res: Response, next: NextFunction) => {
@@ -126,7 +123,7 @@ export const ResetPasswordController = async (req: Request, res: Response, next:
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const UpdateProfileController = async (req: Request<ParamsDictionary, any, UpdateUserRequestBody>, res: Response, next: NextFunction) => {
@@ -136,7 +133,7 @@ export const UpdateProfileController = async (req: Request<ParamsDictionary, any
         .then(result => {
             res.status(result.status).json({ message: result.message })
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const GetProfileController = async (req: Request, res: Response, next: NextFunction) => {
@@ -145,7 +142,7 @@ export const GetProfileController = async (req: Request, res: Response, next: Ne
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
         })
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
 export const FollowerController = async (req: Request, res: Response, next: NextFunction) => {
@@ -153,12 +150,12 @@ export const FollowerController = async (req: Request, res: Response, next: Next
     const { follower_user_id } = req.body
     userService.Follower(id, follower_user_id)
         .then(result => res.status(result.status).json({ message: result.message }))
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 export const UnFollowerController = async (req: Request, res: Response, next: NextFunction) => {
     const id = new ObjectId(req.params.toString());
     const { follower_user_id } = req.body
     userService.UnFollower(id, follower_user_id)
         .then(result => res.status(result.status).json({ message: result.message }))
-        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }

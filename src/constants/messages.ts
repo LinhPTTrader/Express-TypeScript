@@ -89,3 +89,7 @@ export const LIKE_MESSAGES = {
     LIKE_SUCCESSFULLY: 'Like successfully',
     UNLIKE_SUCCESSFULLY: 'Unlike successfully'
 }
+
+export const IMAGE_MESSAGES = {
+    MAX_SIZE: 'Image must be less than 2Mb'
+}
