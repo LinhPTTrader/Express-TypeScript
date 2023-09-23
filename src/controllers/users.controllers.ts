@@ -39,8 +39,8 @@ export const LogoutController = async (req: Request<ParamsDictionary, any, Logou
 
 }
 
-export const FetchAcccountController = async (req: Request, res: Response, next: NextFunction) => {
-    const _id = new ObjectId(req.params.toString())
+export const FetchAcccountController = async (req: any, res: Response, next: NextFunction) => {
+    const _id = req.id
     const { refreshToken } = req.body;
     userService.CheckRefreshTokenAndUserId(_id, refreshToken)
         .then(result => {
@@ -58,9 +58,9 @@ export const FetchAcccountController = async (req: Request, res: Response, next:
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const EmailVerifyController = async (req: Request<ParamsDictionary, any, RegisterRequestBody>, res: Response, next: NextFunction) => {
-    const _id = new ObjectId(req.params.toString())
-    userService.UpdateVerifyEmail(_id)
+export const EmailVerifyController = async (req: any, res: Response, next: NextFunction) => {
+    const id = req.id
+    userService.UpdateVerifyEmail(id)
         .then(result => {
             if (result) {
                 res.status(HTTP_STATUS.OK).json({ message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS })
@@ -70,10 +70,10 @@ export const EmailVerifyController = async (req: Request<ParamsDictionary, any, 
 
 }
 
-export const RequireVerifyEmailController = async (req: Request<ParamsDictionary, any, RegisterRequestBody>, res: Response, next: NextFunction) => {
-    const _id = new ObjectId(req.params.toString())
-    const emailVerifyToken = await userService.SignEmailVerifyToken(_id.toString())
-    userService.GetUser(_id)
+export const RequireVerifyEmailController = async (req: any, res: Response, next: NextFunction) => {
+    const id = req.id
+    const emailVerifyToken = await userService.SignEmailVerifyToken(id.toString())
+    userService.GetUser(id)
         .then(result => {
             if (result?.verify === 0) {
                 // Đoạn này đáng ra là phải gửi Email cho User và họ xác nhận thông qua email_verify_token
@@ -87,19 +87,19 @@ export const RequireVerifyEmailController = async (req: Request<ParamsDictionary
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const ChangePasswordController = async (req: Request, res: Response, next: NextFunction) => {
-    const id = new ObjectId(req.params.toString());
+export const ChangePasswordController = async (req: any, res: Response, next: NextFunction) => {
+    const _id = req.id
     const newPassword = req.body.newPassword;
-    userService.UpdatePassword(id, newPassword)
+    userService.UpdatePassword(_id, newPassword)
         .then((result) => {
             res.status(HTTP_STATUS.OK).json(result)
         })
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const ForgotPasswordController = async (req: Request<ParamsDictionary, any, ForgotPasswordReqBody>, res: Response, next: NextFunction) => {
+export const ForgotPasswordController = async (req: any, res: Response, next: NextFunction) => {
     const email = req.body.email;
-    const id = new ObjectId(req.params.toString())
+    const id = req.id
     userService.ForgotPassword(email, id)
         .then(result => {
             res.json(result)
@@ -107,18 +107,18 @@ export const ForgotPasswordController = async (req: Request<ParamsDictionary, an
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 
 }
-export const VerifyForgotPasswordController = async (req: Request, res: Response, next: NextFunction) => {
+export const VerifyForgotPasswordController = async (req: any, res: Response, next: NextFunction) => {
     const { forgot_password_token } = req.body
-    const id = new ObjectId(req.params.toString())
+    const id = req.id
     userService.VerifyForgotPassword(id, forgot_password_token)
         // Điều hướng đến reset password
         .then(result => res.status(HTTP_STATUS.OK).json(result))
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const ResetPasswordController = async (req: Request, res: Response, next: NextFunction) => {
+export const ResetPasswordController = async (req: any, res: Response, next: NextFunction) => {
     const { new_password } = req.body;
-    const id = new ObjectId(req.params.toString());
+    const id = req.id
     userService.UpdatePassword(id, new_password)
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
@@ -126,9 +126,9 @@ export const ResetPasswordController = async (req: Request, res: Response, next:
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const UpdateProfileController = async (req: Request<ParamsDictionary, any, UpdateUserRequestBody>, res: Response, next: NextFunction) => {
+export const UpdateProfileController = async (req: any, res: Response, next: NextFunction) => {
     const user = req.body;
-    const id = new ObjectId(req.params.toString());
+    const id = req.id
     userService.UpdateUser(id, user)
         .then(result => {
             res.status(result.status).json({ message: result.message })
@@ -136,8 +136,8 @@ export const UpdateProfileController = async (req: Request<ParamsDictionary, any
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const GetProfileController = async (req: Request, res: Response, next: NextFunction) => {
-    const id = new ObjectId(req.params.toString());
+export const GetProfileController = async (req: any, res: Response, next: NextFunction) => {
+    const id = req.id
     userService.GetUser(id)
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
@@ -145,15 +145,15 @@ export const GetProfileController = async (req: Request, res: Response, next: Ne
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
 
-export const FollowerController = async (req: Request, res: Response, next: NextFunction) => {
-    const id = new ObjectId(req.params.toString());
+export const FollowerController = async (req: any, res: Response, next: NextFunction) => {
+    const id = req.id
     const { follower_user_id } = req.body
     userService.Follower(id, follower_user_id)
         .then(result => res.status(result.status).json({ message: result.message }))
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
-export const UnFollowerController = async (req: Request, res: Response, next: NextFunction) => {
-    const id = new ObjectId(req.params.toString());
+export const UnFollowerController = async (req: any, res: Response, next: NextFunction) => {
+    const id = req.id
     const { follower_user_id } = req.body
     userService.UnFollower(id, follower_user_id)
         .then(result => res.status(result.status).json({ message: result.message }))

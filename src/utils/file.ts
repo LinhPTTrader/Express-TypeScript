@@ -10,6 +10,7 @@ import { ErrorWithStatus } from '~/models/schemas/Errors'
 export const initFolder = () => {
     const uploadFolderPathImages = path.resolve('uploads/images')
     const uploadFolderPathTemps = path.resolve('uploads/temps')
+    const uploadFolderPathVideos = path.resolve('uploads/videos')
     if (!fs.existsSync(uploadFolderPathImages)) {
         fs.mkdirSync(uploadFolderPathImages,
             { recursive: true } // Tạo folder nested
@@ -17,6 +18,11 @@ export const initFolder = () => {
     }
     if (!fs.existsSync(uploadFolderPathTemps)) {
         fs.mkdirSync(uploadFolderPathTemps,
+            { recursive: true } // Tạo folder nested
+        )
+    }
+    if (!fs.existsSync(uploadFolderPathVideos)) {
+        fs.mkdirSync(uploadFolderPathVideos,
             { recursive: true } // Tạo folder nested
         )
     }
@@ -82,7 +88,6 @@ export const handleUploadVideo = async (req: Request) => {
             if (err) {
                 reject(err)
             }
-            console.log(files)
             if (files.video === undefined) {
                 reject(new ErrorWithStatus({ message: "File is not empty", status: HTTP_STATUS.NOT_FOUND }))
             }

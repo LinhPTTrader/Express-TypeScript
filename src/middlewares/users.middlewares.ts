@@ -128,8 +128,7 @@ export const AccessTokenValidator = validate(checkSchema({
                 if (!accessToken) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
-                    const id = (await VerifyToken(accessToken, process.env.JWT_SECRECT_ACCESS as string)).payload.userId
-                    req.params = id
+                    req.id = (await VerifyToken(accessToken, process.env.JWT_SECRECT_ACCESS as string)).payload.userId
                     return true;
                 }
             }
@@ -147,8 +146,7 @@ export const RefreshTokenValidator = validate(checkSchema({
                 if (!value) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
-                    const id = (await VerifyToken(value, process.env.JWT_SECRECT_REFRESHTOKEN as string)).payload.userId
-                    req.params = id
+                    req.id = (await VerifyToken(value, process.env.JWT_SECRECT_REFRESHTOKEN as string)).payload.userId
                     return true;
                 }
             }
@@ -168,8 +166,7 @@ export const EmailVerifyTokenValidator = validate(checkSchema({
                 if (!value) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
-                    const id = (await VerifyToken(value, process.env.JWT_EMAIL_SECRECT as string)).payload.userId
-                    req.params = id
+                    req.id = (await VerifyToken(value, process.env.JWT_EMAIL_SECRECT as string)).payload.userId
                     return true;
                 }
             }
@@ -263,7 +260,7 @@ export const EmailValidator = validate(checkSchema({
                 if (!result) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY });
                 }
-                req.params = result._id;
+                req.id = result._id;
                 return true;
             }
         }
@@ -282,8 +279,7 @@ export const ForgotPasswordTokenValidator = validate(
                     if (!value) {
                         throw new ErrorWithStatus({ message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                     } else {
-                        const id = (await VerifyToken(value, process.env.JWT_FORGOT_PASSWORD_SECRECT as string)).payload.userId
-                        req.params = id
+                        req.id = (await VerifyToken(value, process.env.JWT_FORGOT_PASSWORD_SECRECT as string)).payload.userId
                         return true;
                     }
                 }

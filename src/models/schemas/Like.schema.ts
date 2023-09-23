@@ -2,21 +2,21 @@ import { ObjectId } from "mongodb";
 
 
 interface LikeType {
-    _id: ObjectId,
+    _id?: ObjectId,
     user_id: ObjectId,
-    twitter_id: ObjectId[],
-    created_at: Date
+    tweet_id: ObjectId,
+    created_at?: Date
 }
 
 export class Like {
-    _id: ObjectId
+    _id?: ObjectId
     user_id: ObjectId
-    twitter_id: ObjectId[]
+    tweet_id: ObjectId
     created_at: Date
-    constructor(like: Like) {
-        this._id = like._id
+    constructor(like: LikeType) {
+        this._id = like._id || new ObjectId()
         this.user_id = like.user_id
-        this.twitter_id = like.twitter_id || []
-        this.created_at = like.created_at || Date()
+        this.tweet_id = like.tweet_id
+        this.created_at = like.created_at || new Date()
     }
 }

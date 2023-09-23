@@ -7,7 +7,7 @@ import { isCheck } from "~/constants/config";
 
 
 class MediaService {
-    async uploadImage(req: Request) {
+    async UploadImage(req: Request) {
         const files = await handleUploadImage(req);
         const arrFile: any = []
         return Promise.all(files.map(async (file) => {
@@ -21,14 +21,14 @@ class MediaService {
                 .toFile(newPath);
 
             return isCheck ? `http://localhost:${process.env.HOST}/static/${newName}.jpg`
-                : `http://localhost:${process.env.PORT}/static/${newName}.jpg`;
+                : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`;
         }));
 
     }
     async UploadVideo(req: Request) {
         const file = await handleUploadVideo(req);
-        console.log(file)
-        return file
+
+        return `http://localhost:${process.env.PORT}/static/video/${file[0].newFilename}`
     }
 }
 
