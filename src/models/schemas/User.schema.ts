@@ -18,7 +18,6 @@ interface UserType {
     forgot_password_token?: string // Jwt or null
     // Đổi lại mật khẩu
     verify?: UserVerifyStatus
-
     bio?: string
     location?: string
     website?: string
@@ -40,7 +39,6 @@ export default class User {
     forgot_password_token: string // Jwt or null
     // Đổi lại mật khẩu
     verify: UserVerifyStatus
-
     bio: string
     location: string
     website: string

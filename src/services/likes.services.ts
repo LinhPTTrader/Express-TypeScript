@@ -4,6 +4,8 @@ import { Like } from "~/models/schemas/Like.schema";
 
 class LikeService {
     async LikeTweet(user_id: ObjectId, tweet_id: ObjectId) {
+        user_id = new ObjectId(user_id)
+        tweet_id = new ObjectId(tweet_id)
         const newLike = new Like({ user_id, tweet_id })
         return await databaseService.Like.findOneAndUpdate({ user_id, tweet_id }, { $setOnInsert: newLike }, { upsert: true, returnDocument: 'after' })
 

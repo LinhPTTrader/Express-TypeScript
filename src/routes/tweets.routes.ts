@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { TweetController } from "~/controllers/tweets.controllers";
+import { GetTweetcontroller, TweetController } from "~/controllers/tweets.controllers";
 import { CreateTweetValidator } from "~/middlewares/tweets.middlewate";
 import { AccessTokenValidator } from "~/middlewares/users.middlewares";
 
@@ -29,10 +29,11 @@ routerTweet.post('/', AccessTokenValidator, CreateTweetValidator, TweetControlle
 
 
 /**
- * Description:  GET Tweet
- * Path: /get-tweet/:curent_page&
- * Method: GET
+ * Description:  GET Tweet (Khi người dùng nhấn vào 1 Tweet)
+ * Path: /:tweet_id
+ * Method: GET'
+ *  Header: { Authorization?: Bearer <access_token> }
 */
-routerTweet.get('/get-tweet', TweetController)
+routerTweet.get('/:tweet_id', GetTweetcontroller)
 
 export default routerTweet;

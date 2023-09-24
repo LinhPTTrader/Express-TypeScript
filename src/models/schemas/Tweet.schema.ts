@@ -11,6 +11,8 @@ interface TweetConstructor {
     user_id: ObjectId
     type: TweetType
     audience: TweetAudience
+    twitter_article?: ObjectId[]
+
     content: string
     parent_id: string | null
     //  Chỉ null khi tweet gốc
@@ -28,6 +30,7 @@ export class Tweet {
     user_id?: ObjectId
     type: TweetType
     audience: TweetAudience
+    twitter_article?: ObjectId[]
     content: string
     parent_id: ObjectId | null
     //  Chỉ null khi tweet gốc
@@ -43,6 +46,7 @@ export class Tweet {
         this.user_id = tweet.user_id
         this.type = tweet.type
         this.audience = tweet.audience
+        this.twitter_article = tweet.twitter_article || []
         this.content = tweet.content
         this.parent_id = tweet.parent_id ? new ObjectId(tweet.parent_id) : null
         this.hashtags = tweet.hashtags
