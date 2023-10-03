@@ -12,6 +12,7 @@ import staticRouter from './routes/static.routes'
 import routerTweet from './routes/tweets.routes'
 import routerBookmark from './routes/bookmarks.routes'
 import routerLike from './routes/likes.routes'
+import searchRouter from './routes/search.routes'
 
 
 
@@ -37,6 +38,7 @@ app.use('/users', usersRouter)
 app.use('/tweets', routerTweet)
 app.use('/bookmarks', routerBookmark)
 app.use('/likes', routerLike)
+app.use('/search', searchRouter)
 
 // Static file
 app.use('/static', staticRouter)

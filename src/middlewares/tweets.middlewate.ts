@@ -122,3 +122,36 @@ export const CreateTweetValidator = validate(
             }
         }
     }))
+
+export const PanagationValidator = validate(checkSchema({
+    limit: {
+        isNumeric: {
+            errorMessage: new ErrorWithStatus({ message: "Limit and Page require number", status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        custom: {
+            options: (value, { req }) => {
+                const num = Number(value)
+                if (num > 100 || num < 1) {
+                    throw new ErrorWithStatus({ message: "Limit and Page must be in the range [1-100]", status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+                } else {
+                    return true
+                }
+            }
+        }
+    },
+    page: {
+        isNumeric: {
+            errorMessage: new ErrorWithStatus({ message: "Limit and Page require number", status: HTTP_STATUS.UNAUTHORIZED })
+        },
+        custom: {
+            options: (value, { req }) => {
+                const num = Number(value)
+                if (num > 100 || num < 1) {
+                    throw new ErrorWithStatus({ message: "Limit and Page must be in the range [1-100]", status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
+                } else {
+                    return true
+                }
+            }
+        }
+    }
+}, ['query']))

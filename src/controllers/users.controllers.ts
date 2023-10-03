@@ -40,18 +40,17 @@ export const LogoutController = async (req: Request<ParamsDictionary, any, Logou
 }
 
 export const FetchAcccountController = async (req: any, res: Response, next: NextFunction) => {
-    const _id = req.id
+    const user_id = new ObjectId(req.id)
     const { refreshToken } = req.body;
-    userService.CheckRefreshTokenAndUserId(_id, refreshToken)
+    userService.CheckRefreshTokenAndUserId(user_id, refreshToken)
         .then(result => {
             if (result) {
-                userService.GetUser(_id)
+                userService.GetUser(user_id)
                     .then(result => {
                         res.status(HTTP_STATUS.OK).json(result)
                     })
                     .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
             } else {
-                console.log('loi')
                 res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED })
             }
         })

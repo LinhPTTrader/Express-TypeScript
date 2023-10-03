@@ -85,9 +85,9 @@ export class UserUpdate {
     avatar: string
     cover_photo: string
     constructor(userUpdate: UserUpdateType) {
-        this.name = userUpdate.name || '',
-            this.date_of_birth = userUpdate.date_of_birth || new Date(),
-            this.bio = userUpdate.bio || ''
+        this.name = userUpdate.name || ''
+        this.date_of_birth = userUpdate.date_of_birth || new Date()
+        this.bio = userUpdate.bio || ''
         this.location = userUpdate.location || ''
         this.website = userUpdate.website || ''
         this.username = userUpdate.username || ''

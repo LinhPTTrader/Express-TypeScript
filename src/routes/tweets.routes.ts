@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { GetTweetcontroller, TweetController } from "~/controllers/tweets.controllers";
-import { CreateTweetValidator } from "~/middlewares/tweets.middlewate";
+import { GetNewFeedController, GetTweetChildrencontroller, GetTweetcontroller, TweetController } from "~/controllers/tweets.controllers";
+import { CreateTweetValidator, PanagationValidator } from "~/middlewares/tweets.middlewate";
 import { AccessTokenValidator } from "~/middlewares/users.middlewares";
 
 
@@ -31,9 +31,37 @@ routerTweet.post('/', AccessTokenValidator, CreateTweetValidator, TweetControlle
 /**
  * Description:  GET Tweet (Khi người dùng nhấn vào 1 Tweet)
  * Path: /:tweet_id
- * Method: GET'
+ * Method: GET
  *  Header: { Authorization?: Bearer <access_token> }
+ * Params: tweed_id 
 */
-routerTweet.get('/:tweet_id', GetTweetcontroller)
+routerTweet.get('/gettweet/:tweet_id', GetTweetcontroller)
+
+/**
+ * Description:  GET Tweet Children (comment, retweet, quoteTweet)
+ * Path: /get_tweet_children
+ * Method: GET
+ * query: {limit: number, page:number, tweet_type: TweetType (0,1,2,3)}
+*/
+routerTweet.get('/gettweet-children/:tweet_id/children', GetTweetChildrencontroller)
+
+
+/**
+ * Description:  GET New Feed (Tweed được hiện thị gồm của mình và người mình theo dõi)
+ * Path: /newfeed
+ * Method: GET
+ * Header: { Authorization?: Bearer <access_token> }
+ * query: {limit: number, page: number}
+*/
+routerTweet.get('/newfeed', PanagationValidator, AccessTokenValidator, GetNewFeedController)
+
+/**
+ * Description:  Views Tweet
+ * Path: /viewstweed
+ * Method: GET
+ * Header: { Authorization?: Bearer <access_token> }
+ * query: {limit: number, page: number}
+*/
+routerTweet.get('/viewstweed',)
 
 export default routerTweet;

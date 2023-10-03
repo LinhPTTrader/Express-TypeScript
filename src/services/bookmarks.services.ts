@@ -7,7 +7,10 @@ class BookmarkService {
         user_id = new ObjectId(user_id)
         tweet_id = new ObjectId(tweet_id)
         const newBookmark = new Bookmark({ user_id, tweet_id })
-        return await databaseService.Bookmark.findOneAndUpdate({ user_id, tweet_id }, { $setOnInsert: newBookmark }, { upsert: true, returnDocument: 'after' })
+        return await databaseService.Bookmark.findOneAndUpdate(
+            { user_id, tweet_id },
+            { $setOnInsert: newBookmark },
+            { upsert: true, returnDocument: 'after' })
     }
 
     async UnBookmarkTweet(user_id: ObjectId, tweet_id: ObjectId) {

@@ -142,7 +142,6 @@ export const RefreshTokenValidator = validate(checkSchema({
         trim: true,
         custom: {
             options: async (value: string, { req }) => {
-                console.log("refresh:", value)
                 if (!value) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
                 } else {
@@ -216,7 +215,9 @@ export const ChangePasswordValidator = validate(checkSchema({
         trim: true // Loại bỏ các dấu như dấu cách thừa
     },
     confirmNewPassword: {
-        notEmpty: true,
+        notEmpty: {
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+        },
         isLength: {
             options: {
                 min: 6,
@@ -385,7 +386,6 @@ export const FollowerValidation = validate(checkSchema({
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.INVALID_USER_ID, status: HTTP_STATUS.NOT_FOUND })
                 }
                 const follower_user = await databaseService.Users.findOne({ _id: new ObjectId(value) })
-                console.log('flo: ', follower_user)
                 if (follower_user === null) {
                     throw new ErrorWithStatus({ message: USERS_MESSAGES.USER_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
                 }

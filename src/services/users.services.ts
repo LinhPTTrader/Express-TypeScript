@@ -19,9 +19,6 @@ class UserService {
         const result = await databaseService.Users.insertOne(
             new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: HashPassword(payload.password) })
         )
-        await databaseService.Follower.insertOne(
-            { user_id: result.insertedId, follower_user_id: [], created_at: new Date() }
-        )
         return { message: USERS_MESSAGES.REGISTER_SUCCESS, result };
 
     }
@@ -164,8 +161,8 @@ class UserService {
         }
         return false
     }
-    async CheckRefreshTokenAndUserId(id: ObjectId, token: string) {
-        const result = await databaseService.RefreshToken.findOne({ user_id: id });
+    async CheckRefreshTokenAndUserId(user_id: ObjectId, token: string) {
+        const result = await databaseService.RefreshToken.findOne({ user_id });
         if (result?.refreshToken === token) {
             return true
         }
@@ -185,19 +182,26 @@ class UserService {
         }
         return { message: USERS_MESSAGES.USER_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND }
     }
-    async Follower(_id: ObjectId, user_id: ObjectId) {
-        await databaseService.Follower.updateOne({ user_id: _id }, { $addToSet: { follower_user_id: user_id } })
+    //new Follower({ user_id: new ObjectId(user_id), follower_user_id: new ObjectId(follower_user_id) }
+    async Follower(user_id: string, follower_user_id: string) {
+        await databaseService.Follower.findOneAndUpdate(
+            {
+                user_id: new ObjectId(user_id),
+                follower_user_id: new ObjectId(follower_user_id)
+            },
+            {
+                $setOnInsert: new Follower({ user_id: new ObjectId(user_id), follower_user_id: new ObjectId(follower_user_id) })
+            },
+
+            {
+                upsert: true, returnDocument: 'after'
+            }
+        )
         return { message: USERS_MESSAGES.FOLLOW_SUCCESS, status: HTTP_STATUS.OK }
     }
-    async UnFollower(_id: ObjectId, user_id: ObjectId) {
-        await databaseService.Follower.updateOne({ user_id: _id }, { $pull: { follower_user_id: user_id } })
+    async UnFollower(user_id: ObjectId, follower_user_id: ObjectId) {
+        await databaseService.Follower.deleteOne({ user_id: new ObjectId(user_id), follower_user_id: new ObjectId(follower_user_id) })
         return { message: USERS_MESSAGES.UNFOLLOW_SUCCESS, status: HTTP_STATUS.OK }
-    }
-
-
-    async Like(_id: ObjectId, user_id: ObjectId) {
-        await databaseService.Follower.updateOne({ user_id: _id }, { $addToSet: { follower_user_id: user_id } })
-        return { message: USERS_MESSAGES.FOLLOW_SUCCESS, status: HTTP_STATUS.OK }
     }
 }
 

@@ -37,6 +37,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.1.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.4",
     "@types/cors": "^2.8.14",
