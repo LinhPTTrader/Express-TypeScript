@@ -24,7 +24,7 @@ export const GetTweetcontroller = (req: any, res: Response, next: NextFunction) 
             tweetService.increaseView(tweet_id, user_id)
                 .then(
                     result2 => {
-                        console.log(result2)
+                        // console.log(result2)
                         res.json({ ...result[0], guest_views: result2?.guest_views, user_views: result2?.user_views })
                     }
                 )
@@ -45,7 +45,7 @@ export const GetTweetChildrencontroller = (req: any, res: Response, next: NextFu
             tweetService.increaseView(tweet_id, user_id)
                 .then(
                     result2 => {
-                        console.log(result2)
+                        // console.log(result2)
                         res.json({ ...result[0], guest_views: result2?.guest_views, user_views: result2?.user_views })
                     }
                 )
@@ -63,7 +63,7 @@ export const GetNewFeedController = (req: any, res: Response, next: NextFunction
             const arrTweedId = result.map(tweet => tweet._id)
             tweetService.increaseViewNewFeed(arrTweedId, user_id)
                 .then(result2 => {
-                    console.log(result2)
+                    // console.log(result2)
                     res.json(result2)
                 })
         })

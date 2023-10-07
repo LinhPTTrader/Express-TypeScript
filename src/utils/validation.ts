@@ -22,7 +22,7 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
             console.log('Errors:', firstError.msg)
             return next(firstError.msg)
         }
-        console.log(firstError.msg)
+        // console.log(firstError.msg)
         next(firstError.msg)
     };
 };

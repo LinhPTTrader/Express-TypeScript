@@ -7,6 +7,7 @@ import { HTTP_STATUS } from "~/constants/httpStatus"
 import { USERS_MESSAGES } from "~/constants/messages"
 import { REGEX_USERNAME } from "~/constants/regex";
 import { ErrorWithStatus } from "~/models/schemas/Errors"
+import { UserVerifyStatus } from "~/models/schemas/User.schema";
 import databaseService from "~/services/database.services";
 import userService from "~/services/users.services"
 import { VerifyToken } from "~/utils/jwt"
@@ -286,7 +287,7 @@ export const ForgotPasswordTokenValidator = validate(
                 }
             }
         }
-    }, ['body']),
+    }, ['query']),
 )
 
 export const ResetPasswordTokenValidator = validate(
@@ -393,3 +394,26 @@ export const FollowerValidation = validate(checkSchema({
         }
     }
 }, ['body']))
+
+
+export const EmailTokenValidator = validate(checkSchema({
+    email_token: {
+        custom: {
+            options: async (value, { req }) => {
+                if (!value) {
+                    throw new ErrorWithStatus({ message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
+                } else {
+                    const id = (await VerifyToken(value, process.env.JWT_EMAIL_SECRECT as string)).payload.userId;
+                    req.id = id
+                    const user = await userService.GetUser(new ObjectId(id))
+                    if (user && user.verify === UserVerifyStatus.Verified) {
+                        throw new ErrorWithStatus({ message: "Not found", status: HTTP_STATUS.NOT_FOUND })
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+}, ['query']))

@@ -6,6 +6,7 @@ import { HTTP_STATUS } from "~/constants/httpStatus";
 import { ObjectId } from "mongodb";
 import { USERS_MESSAGES } from "~/constants/messages";
 import { ErrorWithStatus } from '~/models/schemas/Errors';
+import { result } from "lodash";
 
 
 
@@ -69,21 +70,19 @@ export const EmailVerifyController = async (req: any, res: Response, next: NextF
 
 }
 
-export const RequireVerifyEmailController = async (req: any, res: Response, next: NextFunction) => {
+export const VerifyEmailController = async (req: any, res: Response, next: NextFunction) => {
     const id = req.id
-    const emailVerifyToken = await userService.SignEmailVerifyToken(id.toString())
-    userService.GetUser(id)
+    const { email_token } = req.query
+    userService.VerifyEmailToken(id, email_token)
         .then(result => {
-            if (result?.verify === 0) {
-                // Đoạn này đáng ra là phải gửi Email cho User và họ xác nhận thông qua email_verify_token
-                res.status(HTTP_STATUS.OK).json({ emailVerifyToken })
-            } else if (result?.verify === 1) {
-                res.status(HTTP_STATUS.OK).json({ message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS })
-            } else {
-                res.status(HTTP_STATUS.NOT_FOUND).json({ message: USERS_MESSAGES.EMAIL_IS_REQUIRED })
+            if (result) {
+                res.status(200).json({ message: "Verify email success" })
             }
         })
-        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+        .catch((err) => {
+            console.log(err)
+            next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR }))
+        })
 }
 
 export const ChangePasswordController = async (req: any, res: Response, next: NextFunction) => {
@@ -98,18 +97,18 @@ export const ChangePasswordController = async (req: any, res: Response, next: Ne
 
 export const ForgotPasswordController = async (req: any, res: Response, next: NextFunction) => {
     const email = req.body.email;
-    const id = req.id
-    userService.ForgotPassword(email, id)
+    const user_id = req.id
+    userService.ForgotPassword(email, user_id)
         .then(result => {
-            res.json(result)
+            res.status(HTTP_STATUS.OK).json(result)
         })
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 
 }
 export const VerifyForgotPasswordController = async (req: any, res: Response, next: NextFunction) => {
-    const { forgot_password_token } = req.body
-    const id = req.id
-    userService.VerifyForgotPassword(id, forgot_password_token)
+    const { forgot_password_token } = req.query
+    const user_id = req.id
+    userService.VerifyForgotPassword(user_id, forgot_password_token)
         // Điều hướng đến reset password
         .then(result => res.status(HTTP_STATUS.OK).json(result))
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
@@ -157,4 +156,14 @@ export const UnFollowerController = async (req: any, res: Response, next: NextFu
     userService.UnFollower(id, follower_user_id)
         .then(result => res.status(result.status).json({ message: result.message }))
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+}
+
+export const ResendEmailController = async (req: any, res: Response, next: NextFunction) => {
+    const user_id = req.id;
+    userService.ResendVerifyEmailToken(user_id)
+        .then(result => {
+            res.status(200).json(result)
+        })
+        .catch((err) => next(err))
+
 }

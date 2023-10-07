@@ -13,6 +13,7 @@ import routerTweet from './routes/tweets.routes'
 import routerBookmark from './routes/bookmarks.routes'
 import routerLike from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
+import './utils/s3'
 
 
 

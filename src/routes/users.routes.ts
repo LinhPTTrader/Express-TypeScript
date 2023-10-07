@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { AccessTokenValidator, ChangePasswordValidator, EmailValidator, EmailVerifyTokenValidator, FollowerValidation, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
-import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, LoginController, LogoutController, RegisterController, RequireVerifyEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
+import { AccessTokenValidator, ChangePasswordValidator, EmailTokenValidator, EmailValidator, EmailVerifyTokenValidator, FollowerValidation, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
+import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, LoginController, LogoutController, RegisterController, ResendEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyEmailController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -40,21 +40,20 @@ usersRouter.post('/fetch', AccessTokenValidator, RefreshTokenValidator, FetchAcc
 
 /**
  * Description: Require Verify Email
- * Path: //verify-email
+ * Path: /verify-email
  * Method: GET
- * Header: {Authorization: Bearer: <accessToken>}
+ * Param: email_token: string
  */
-usersRouter.get('/verify-email', AccessTokenValidator, RequireVerifyEmailController)
+usersRouter.get('/verify-email', EmailTokenValidator, VerifyEmailController)
 
 
 /**
  * Description: Verify Email 
  * Path: /verify-email
- * Method: POST
-* Header: {Authorization: Bearer: <accessToken>}
- * Body: {email_verify_token}
+ * Method: GET
+ * Header: {Authorization: Bearer: <accessToken>}
  */
-usersRouter.post('/verify-email', AccessTokenValidator, EmailVerifyTokenValidator, EmailVerifyController)
+usersRouter.get('/resend-verify-email', AccessTokenValidator, ResendEmailController)
 
 /**
  * Description:  Change Password
@@ -79,7 +78,7 @@ usersRouter.post('/forgot-password', EmailValidator, ForgotPasswordController)
  * Method: POST
  * Body: {forgot_password_token: string}
  */
-usersRouter.post('/verify-forgot-password', ForgotPasswordTokenValidator, VerifyForgotPasswordController)
+usersRouter.get('/forgot-password', ForgotPasswordTokenValidator, VerifyForgotPasswordController)
 
 /**
  * Description: Reset Password

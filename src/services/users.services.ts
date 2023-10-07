@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { Follower } from './../models/schemas/Follower.schema';
 import { pick, result } from 'lodash';
 import User, { UserUpdate, UserVerifyStatus } from '~/models/schemas/User.schema';
@@ -6,12 +7,15 @@ import { RegisterRequestBody, UpdateUserRequestBody } from '~/models/request/Use
 import { HashPassword } from '~/utils/crypto';
 import { SignToken } from '~/utils/jwt';
 import { TokenType } from '~/constants/enum';
-import { ObjectId } from 'mongodb';
 import { RefreshToken } from '~/models/schemas/RefreshToken.schema';
 import bcrypt from "bcrypt";
 import { USERS_MESSAGES } from '~/constants/messages';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { ErrorWithStatus } from '~/models/schemas/Errors';
+import { sendVerifyEmail } from '~/utils/email';
+import { VerifyEmailTemplate } from '~/templates/verifyemail';
+import { ForgotPasswordTemplate } from '~/templates/forgotPassword';
+import { ur } from '@faker-js/faker';
 
 
 class UserService {
@@ -19,6 +23,13 @@ class UserService {
         const result = await databaseService.Users.insertOne(
             new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: HashPassword(payload.password) })
         )
+        const email_verify_token = await this.SignEmailVerifyToken(result.insertedId.toString())
+        databaseService.Users.updateOne({ _id: result.insertedId }, { $set: { email_verify_token } })
+        const url = `${process.env.HOSTUI}/verify-email?email_token=${email_verify_token}`
+        console.log(ur)
+        sendVerifyEmail(payload.email, "Verify Email", VerifyEmailTemplate(url, payload.name))
+            .then(result => console.log(result))
+            .catch(err => console.log(err))
         return { message: USERS_MESSAGES.REGISTER_SUCCESS, result };
 
     }
@@ -140,26 +151,28 @@ class UserService {
             message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS
         }
     }
-    async ForgotPassword(email: string, id: ObjectId) {
-        const forgot_password_token = await this.SignForgotPasswordToken(id.toString());
-        await databaseService.Users.updateOne({ _id: id }, [{
+    async ForgotPassword(email: string, user_id: string) {
+        const forgot_password_token = await this.SignForgotPasswordToken(user_id);
+        await databaseService.Users.updateOne({ _id: new ObjectId(user_id) }, [{
             $set: {
                 forgot_password_token,
                 updated_at: '$$NOW'
             }
         }])
-        // Gửi email kèm đường link để người dùng click vào link (Sau này dùng amazon aws để gởi email)
+        const url = `http://localhost:3000/users/forgot-password?forgot_password_token=${forgot_password_token}`
+        sendVerifyEmail(email, "Forgot Password", ForgotPasswordTemplate(url, email))
+            .then(result => console.log(result))
+            .catch(err => console.log(err))
+        return { message: "Forgot password success, please check email!!!" };
 
-        return { message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD, token: forgot_password_token }
     }
-    async VerifyForgotPassword(id: ObjectId, token: string) {
-        const user = await databaseService.Users.findOne({ _id: id })
-        // console.log(user?.forgot_password_token)
-        // console.log(token)
-        if (user?.forgot_password_token == token) {
-            return true
+    async VerifyForgotPassword(user_id: string, token: string) {
+        const user = await databaseService.Users.findOne({ _id: new ObjectId(user_id) })
+
+        if (user?.forgot_password_token === token) {
+            return user.forgot_password_token
         }
-        return false
+        throw new ErrorWithStatus({ message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED, status: HTTP_STATUS.UNAUTHORIZED })
     }
     async CheckRefreshTokenAndUserId(user_id: ObjectId, token: string) {
         const result = await databaseService.RefreshToken.findOne({ user_id });
@@ -202,6 +215,33 @@ class UserService {
     async UnFollower(user_id: ObjectId, follower_user_id: ObjectId) {
         await databaseService.Follower.deleteOne({ user_id: new ObjectId(user_id), follower_user_id: new ObjectId(follower_user_id) })
         return { message: USERS_MESSAGES.UNFOLLOW_SUCCESS, status: HTTP_STATUS.OK }
+    }
+
+    async VerifyEmailToken(_id: ObjectId, email_verify_token: string) {
+        return await databaseService.Users.findOneAndUpdate(
+            {
+                _id: new ObjectId(_id),
+                email_verify_token
+            },
+            {
+                $set: { verify: 1, email_verify_token: "" }
+            },
+            { upsert: false, returnDocument: 'after' }
+        )
+    }
+    async ResendVerifyEmailToken(user_id: string) {
+        const user = await databaseService.Users.findOne({ _id: new ObjectId(user_id) })
+        if (user && user.verify === UserVerifyStatus.Verified) {
+            throw new ErrorWithStatus({ message: "Verified email", status: HTTP_STATUS.OK })
+        } else {
+            const email_verify_token = await this.SignEmailVerifyToken(user_id)
+            databaseService.Users.updateOne({ _id: new ObjectId(user_id) }, { $set: { email_verify_token } })
+            const url = `${process.env.HOSTUI}/verify-email?email_token=${email_verify_token}`
+            sendVerifyEmail(user?.email as string, "Verify Email", VerifyEmailTemplate(url, user?.name as string))
+                .then(result => console.log(result))
+                .catch(err => console.log(err))
+            return { message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS };
+        }
     }
 }
 
