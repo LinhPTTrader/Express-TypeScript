@@ -14,13 +14,25 @@ import routerBookmark from './routes/bookmarks.routes'
 import routerLike from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
 import './utils/s3'
-
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 
 // Đọc các biến môi trường từ file .env
 dotenv.config()
 
-const app = express()
+const app = express();
+const httpServer = createServer();
+const io = new Server(httpServer, {
+    cors: {
+        origin: 'http://localhost:5173'
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log(socket.id)
+});
+
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
@@ -47,4 +59,4 @@ app.use('/static', staticRouter)
 //Default Error Handler (Tất cả lỗi Error sẽ mặc định đưa về đây)
 app.use(defaultErrorHandler)
 
-app.listen(process.env.PORT, () => console.log('Server Start'))
+httpServer.listen(process.env.PORT, () => console.log('Server Start'))

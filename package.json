@@ -39,6 +39,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.427.0",
     "@aws-sdk/client-ses": "^3.423.0",
+    "@aws-sdk/lib-storage": "^3.427.0",
     "@faker-js/faker": "^8.1.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.4",
@@ -46,6 +47,7 @@
     "@types/formidable": "^3.4.3",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/lodash": "^4.14.198",
+    "@types/mime": "^3.0.2",
     "@types/minimist": "^1.2.2",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
@@ -56,9 +58,15 @@
     "formidable": "^3.5.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "mime": "^3.0.0",
     "minimist": "^1.2.8",
     "mongodb": "^6.0.0",
     "nanoid": "^5.0.1",
-    "sharp": "^0.32.6"
+    "sharp": "^0.32.6",
+    "socket.io": "^4.7.2"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.7",
+    "utf-8-validate": "^5.0.10"
   }
 }

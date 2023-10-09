@@ -66,8 +66,6 @@ export const getNameFromFullname = (fullname: string) => {
 
 
 export const handleUploadVideo = async (req: Request) => {
-    const nanoId = (await import('nanoid')).nanoid
-    const idName = nanoId()
     const folderPath = path.resolve(UPLOAD_VIDEO_DIR)
     const form = formidable({
         uploadDir: path.resolve(folderPath),
