@@ -11,7 +11,6 @@ import { result } from "lodash";
 
 
 export const LoginController = async (req: Request, res: Response, next: NextFunction) => {
-
     const { email, password } = req.body;
     userService.SaveRefreshToken(email, password)
         .then((result) => {
@@ -136,7 +135,7 @@ export const UpdateProfileController = async (req: any, res: Response, next: Nex
 
 export const GetProfileController = async (req: any, res: Response, next: NextFunction) => {
     const id = req.id
-    userService.GetUser(id)
+    userService.GetUser(new ObjectId(id))
         .then(result => {
             res.status(HTTP_STATUS.OK).json(result)
         })

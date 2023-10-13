@@ -178,7 +178,7 @@ export const EmailVerifyTokenValidator = validate(checkSchema({
 export const ChangePasswordValidator = validate(checkSchema({
     password: {
         notEmpty: {
-            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: 422 })
+            errorMessage: new ErrorWithStatus({ message: USERS_MESSAGES.PASSWORD_IS_REQUIRED, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
         },
         trim: true,
         custom: {

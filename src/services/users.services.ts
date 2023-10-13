@@ -116,15 +116,15 @@ class UserService {
                     new RefreshToken({ refreshToken, user_id: result._id })
                 )
             }
-            const { password, forgot_password_token, email_verify_token, ...content } = result as User
-            return { message: USERS_MESSAGES.LOGIN_SUCCESS, accessToken, refreshToken, content }
+            const { password, forgot_password_token, email_verify_token, created_at, updated_at, ...content } = result as User
+            return { message: USERS_MESSAGES.LOGIN_SUCCESS, accessToken, refreshToken, result: content }
         } else {
             throw new ErrorWithStatus({ message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT, status: 422 })
         }
     }
     async GetUser(_id: ObjectId) {
         const result = await databaseService.Users.findOne({ _id });
-        const data = pick(result, ['name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username', 'created_at', 'verify'])
+        const data = pick(result, ['_id', 'name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username', 'verify'])
         return data
     }
     async RemoveRefreshToken(refreshToken: string) {

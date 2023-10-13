@@ -1,0 +1,507 @@
+openapi: 3.0.3
+info:
+  title: Twitter Clone ExpressTS-ReactJS
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
+
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: users
+    description: API User
+  - name: tweets
+    description: API Tweet
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Đăng ký tài khoản
+      description: Đăng ký tài khoản
+      operationId: Register User
+      requestBody:
+        description: Thông tin đăng ký
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "200":
+          description: Register Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register Success
+                  result:
+                    type: object
+                    properties:
+                      acknowledged:
+                        type: boolean
+                        example: true
+                      insertedId:
+                        type: string
+                        format: MongoDB ObjectId
+                        example: 6527ab0f2e9c88e4d7df2fb1
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email is require
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Đăng nhập
+      description: Đăng nhập vào Twitter Clone
+      operationId: login
+      requestBody:
+        description: Thông tin đăng nhập
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+
+      responses:
+        "200":
+          description: "Login Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    $ref: "#/components/schemas/SuccessAuthentication"
+                  message:
+                    type: string
+                    example: Login
+                  result:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 651e83a232cc1ddc159be376
+                      name:
+                        type: string
+                        example: "test"
+                      email:
+                        type: string
+                        example: test@gmail.com
+                      data_of_birth:
+                        type: string
+                        example: "1970-01-01T00:00:00.000Z"
+                      verify:
+                        $ref: "#/components/schemas/VerifyStatus"
+                      bio:
+                        type: string
+                        example: Mô tả một cái gì đó
+                      location:
+                        type: string
+                        example: Việt Name
+                      website:
+                        type: string
+                        example: google.com
+                      username:
+                        type: string
+                        example: test
+                      avatar:
+                        type: string
+                        example: https://localhost:3000/images/avatar1
+                      cover_photo:
+                        type: string
+                        example: https://localhost:3000/images/photo1
+
+        "422":
+          description: Unprocessable Entity (Lỗi tham số gởi đi)
+
+  /users/logout:
+    post:
+      tags:
+        - users
+      security:
+        - BearerAuth: []
+      summary: Đăng xuất
+      description: Đăng xuất Twitter Clone
+      operationId: logout
+      requestBody:
+        description: Thông tin đăng xuất
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJJZCI6IjY1MDA4NWZkN2UxMjQ2NGEwY2RhNDkzOSIsInRva2VuX3R5cGUiOjB9LCJpYXQiOjE2OTQ3NjgwOTAsImV4cCI6MTY5NDc2ODQ1MH0.uU66Hyn_VAZ4RiCHY816ahA7eG91fvKM25dijBiuP_Q
+      responses:
+        "200":
+          description: Logout Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout Success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token is require
+
+  /users/profile:
+    get:
+      tags:
+        - users
+      summary: Lấy thông tin User
+      description: Lấy thông tin User
+      operationId: Get User (Profile)
+      responses:
+        "200":
+          description: Get User Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: "Linh"
+
+  /users/resend-verify-email:
+    get:
+      tags:
+        - users
+      security:
+        - BearerAuth: []
+      summary: Verify Email User
+      description: Verify Email User
+      operationId: Verify email
+      responses:
+        "200":
+          description: Resend Email Success
+
+  /users/change-password:
+    post:
+      tags:
+        - users
+      security:
+        - BearerAuth: []
+      summary: Thay đổi mật khẩu
+      description: Thay đổi mật khẩu
+      operationId: Change Password
+      requestBody:
+        description: Thông tin thay đổi mật khẩu
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "200":
+          description: "Change Password Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reset password success
+
+        "401":
+          description: "Access token is required | Forgot password token is required"
+        "500":
+          description: "Error Server"
+
+  /users/forgot-password:
+    post:
+      tags:
+        - users
+      summary: Tìm lại mật khẩu
+      description: Tìm lại mật khẩu
+      operationId: Forgot Password
+      requestBody:
+        description: Thông tin tìm lại Password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: object
+                  example: test@gmail.com
+      responses:
+        "200":
+          description: "Forgot Password Success"
+        "422":
+          description: Email is require
+
+  /users/follower:
+    post:
+      tags:
+        - users
+      security:
+        - BearerAuth: []
+      summary: Theo dõi người dùng khác
+      description: Theo dõi người dùng khác
+      operationId: Follower User
+      requestBody:
+        description: Thông tin User được Follower
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_user_id:
+                  type: object
+                  format: MongoDB ObjectId
+                  example: 650ea0973b4b67c5c90920ae
+      responses:
+        "200":
+          description: Follower Success
+        "422":
+          description: AccessToken is require
+        "404":
+          description: Invalid user id
+
+  /users/unfollower:
+    post:
+      tags:
+        - users
+      security:
+        - BearerAuth: []
+      summary: Bỏ theo dõi người dùng khác
+      description: Theo dõi người dùng khác
+      operationId: UnFollower User
+      requestBody:
+        description: Thông tin User được UnFollower
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_user_id:
+                  type: object
+                  format: MongoDB ObjectId
+                  example: 650ea0973b4b67c5c90920ae
+      responses:
+        "200":
+          description: Follower Success
+        "422":
+          description: AccessToken is require
+        "404":
+          description: Invalid user id
+
+  /tweets/gettweet/{id}:
+    get:
+      tags:
+        - tweets
+      summary: Lấy tweet theo ID
+      description: Lấy tweet theo ID
+      operationId: Get Tweet  By ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of tweet to return
+          required: true
+          schema:
+            type: string
+            default: 650e936ed5a0dc552528f374
+            format: MongoDB ObjectId
+      responses:
+        "200":
+          description: Get Tweet Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Tweet"
+        "500":
+          description: ERROR
+        "404":
+          description: Not Found ID
+
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test1@gmail.com
+        password:
+          type: string
+          example: As123456@
+    RegisterBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: As123456@
+        confirm_password:
+          type: string
+          example: As123456@
+        name:
+          type: string
+          example: test
+        date_of_birth:
+          type: string
+          format: Date time IOS1008
+          example: 20200208T080910
+    SuccessAuthentication:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: abcbabdbd21341AAA
+        refreshToken:
+          type: string
+          example: abcbabdbd21341AAA
+    Tweet:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 650e936ed5a0dc552528f374
+        user_id:
+          type: string
+          example: 650e936ed5a0dc552528f374
+        type:
+          type: number
+          example: 1
+        audience:
+          type: number
+          example: 1
+        content:
+          type: string
+          example: "Day la tweet dau tien"
+        parent_id:
+          type: string
+          example: 650e936ed5a0dc552528f374
+        medias:
+          type: array
+          example: [avatar.png, coverphoto.png]
+        guest_views:
+          type: number
+          example: 99
+        user_views:
+          type: number
+          example: 100
+        created_at:
+          type: string
+          example: "2023-09-23T07:27:42.436Z"
+        updated_at:
+          type: string
+          example: "2023-09-23T07:27:42.436Z"
+        hashtags:
+          type: array
+          example: [youtube, facebook, twitter]
+        mentions:
+          type: array
+          example:
+            [
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+            ]
+        bookmark:
+          type: array
+          example:
+            [
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+            ]
+
+        like:
+          type: array
+          example:
+            [
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+              650e936ed5a0dc552528f374,
+            ]
+        like_count:
+          type: number
+          example: 99
+        bookmark_count:
+          type: number
+          example: 99
+        retweet:
+          type: number
+          example: 99
+        comment:
+          type: number
+          example: 99
+        quoteTweet:
+          type: number
+          example: 99
+        views:
+          type: number
+          example: 99
+    VerifyStatus:
+      type: object
+      properties:
+        Verified:
+          type: number
+          default: 1
+        Unverified:
+          type: number
+          default: 0
+        Banner:
+          type: number
+          default: 2
+    ChangePasswordBody:
+      type: object
+      properties:
+        password:
+          type: string
+          example: As123456@
+        newPassword:
+          type: string
+          example: As123456@
+        confirmNewPassword:
+          type: string
+          example: As123456@
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, for documentation purposes only
+

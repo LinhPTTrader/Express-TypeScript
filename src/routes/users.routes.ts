@@ -5,10 +5,15 @@ import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
 /**
- * Description: Login
- * Path: /login
- * Method: POST
- * Body: {name: string, email: string}
+ *
+ * /users/login:
+ *     post:
+ *     descripton: login
+ *     tag:
+ *       -Users
+ *     summary: Đăng nhập
+ *     description: Đăng nhập vào Twitter Clone
+ *     operationId: login 
  */
 usersRouter.post('/login', ValidatorUser, LoginController)
 
