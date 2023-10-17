@@ -18,6 +18,7 @@ export const LikeController = (req: any, res: Response, next: NextFunction) => {
 export const UnLikeController = (req: any, res: Response, next: NextFunction) => {
     const id = req.id
     const { tweet_id } = req.body;
+    console.log(id, tweet_id)
     likeService.UnLikeTweet(id, tweet_id)
         .then(result => {
             res.status(200).json({ message: "UnLike success", result })

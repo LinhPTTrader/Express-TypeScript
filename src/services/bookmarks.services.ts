@@ -14,6 +14,8 @@ class BookmarkService {
     }
 
     async UnBookmarkTweet(user_id: ObjectId, tweet_id: ObjectId) {
+        user_id = new ObjectId(user_id)
+        tweet_id = new ObjectId(tweet_id)
         return await databaseService.Bookmark.findOneAndDelete({ user_id, tweet_id })
     }
 }

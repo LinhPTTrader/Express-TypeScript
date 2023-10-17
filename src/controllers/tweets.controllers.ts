@@ -60,12 +60,14 @@ export const GetNewFeedController = (req: any, res: Response, next: NextFunction
     const { limit, page } = req.query;
     tweetService.GetNewFeed(user_id, Number(limit), Number(page))
         .then(result => {
-            const arrTweedId = result.map(tweet => tweet._id)
-            tweetService.increaseViewNewFeed(arrTweedId, user_id)
-                .then(result2 => {
-                    // console.log(result2)
-                    res.json(result2)
-                })
+            // const arrTweedId = result.map(tweet => tweet._id)
+            // // console.log(result)
+            // tweetService.increaseViewNewFeed(arrTweedId, user_id)
+            //     .then(result2 => {
+            //         console.log(result2)
+            //         res.json(result2)
+            //     })
+            res.json(result)
         })
         .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }

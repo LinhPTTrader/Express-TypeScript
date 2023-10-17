@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(limiter)
-
+app.use(helmet());
 
 databaseService.run()
     .catch(console.log)
