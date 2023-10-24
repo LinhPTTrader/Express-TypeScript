@@ -67,7 +67,25 @@ export const GetNewFeedController = (req: any, res: Response, next: NextFunction
             //         console.log(result2)
             //         res.json(result2)
             //     })
-            res.json(result)
+            res.status(200).json({ data: result })
+        })
+        .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+}
+
+
+export const GetUserTweetController = (req: any, res: Response, next: NextFunction) => {
+    const user_id = req.id;
+    const { limit, page } = req.query;
+    tweetService.GetUserTweet(user_id, Number(limit), Number(page))
+        .then(result => {
+            // const arrTweedId = result.map(tweet => tweet._id)
+            // // console.log(result)
+            // tweetService.increaseViewNewFeed(arrTweedId, user_id)
+            //     .then(result2 => {
+            //         console.log(result2)
+            //         res.json(result2)
+            //     })
+            res.status(200).json({ data: result })
         })
         .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }

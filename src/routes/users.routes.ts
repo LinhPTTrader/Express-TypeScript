@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { AccessTokenValidator, ChangePasswordValidator, EmailTokenValidator, EmailValidator, EmailVerifyTokenValidator, FollowerValidation, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
-import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, LoginController, LogoutController, RegisterController, ResendEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyEmailController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
+import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, GetUserController, LoginController, LogoutController, RegisterController, ResendEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyEmailController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -101,7 +101,6 @@ usersRouter.post('/reset-password', ForgotPasswordTokenValidator, ResetPasswordT
  */
 usersRouter.get('/profile', AccessTokenValidator, GetProfileController)
 
-
 /**
  * Description:  Update Profile
  * Path: /update-profile
@@ -112,7 +111,6 @@ usersRouter.get('/profile', AccessTokenValidator, GetProfileController)
         avatar: string,
         cover_photo: string}
  */
-
 usersRouter.patch('/update-profile', UserUpdateValidator, AccessTokenValidator, UpdateProfileController)
 
 
@@ -135,4 +133,8 @@ usersRouter.post('/follower', AccessTokenValidator, FollowerValidation, Follower
  * Body: { follower_user_id: ObjectId}
  */
 usersRouter.post('/unfollower', AccessTokenValidator, FollowerValidation, UnFollowerController)
+
+
+usersRouter.get('/getuser/:user_id', GetUserController)
+
 export default usersRouter

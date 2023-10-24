@@ -24,6 +24,4 @@ mediaRouter.post('/upload-image', UploadImageController)
  */
 mediaRouter.post('/upload-video', UploadVideoController)
 
-
-
 export default mediaRouter;

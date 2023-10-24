@@ -10,6 +10,7 @@ import { MediaType } from "~/constants/enum";
 class MediaService {
     async UploadImage(req: Request) {
         const files = await handleUploadImage(req);
+        console.log(files)
         const arrFile: any = []
         return Promise.all(files.map(async (file) => {
             const newName = getNameFromFullname(file.newFilename);

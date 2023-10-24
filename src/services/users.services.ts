@@ -190,6 +190,7 @@ class UserService {
                 ...data, updated_at: new Date()
             }
         })
+        console.log("result", result)
         if (result.acknowledged && result.modifiedCount > 0) {
             return { message: USERS_MESSAGES.UPDATE_ME_SUCCESS, status: HTTP_STATUS.OK }
         }
@@ -242,6 +243,13 @@ class UserService {
                 .catch(err => console.log(err))
             return { message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS };
         }
+    }
+
+
+    async GetUserById(user_id: ObjectId) {
+        const user = await databaseService.Users.findOne({ _id: new ObjectId(user_id) })
+        const data = pick(user, ['_id', 'name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username', 'verify'])
+        return data
     }
 }
 

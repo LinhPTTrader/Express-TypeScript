@@ -14,7 +14,7 @@ export const LoginController = async (req: Request, res: Response, next: NextFun
     const { email, password } = req.body;
     userService.SaveRefreshToken(email, password)
         .then((result) => {
-            // console.log(result)
+            console.log(result)
             res.cookie('refreshToken', result.refreshToken, { httpOnly: false })
             return res.status(HTTP_STATUS.OK).json(result);
         })
@@ -47,7 +47,7 @@ export const FetchAcccountController = async (req: any, res: Response, next: Nex
             if (result) {
                 userService.GetUser(user_id)
                     .then(result => {
-                        res.status(HTTP_STATUS.OK).json(result)
+                        res.status(HTTP_STATUS.OK).json({ result, status: HTTP_STATUS.OK })
                     })
                     .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
             } else {
@@ -125,7 +125,7 @@ export const ResetPasswordController = async (req: any, res: Response, next: Nex
 
 export const UpdateProfileController = async (req: any, res: Response, next: NextFunction) => {
     const user = req.body;
-    const id = req.id
+    const id = new ObjectId(req.id)
     userService.UpdateUser(id, user)
         .then(result => {
             res.status(result.status).json({ message: result.message })
@@ -165,4 +165,14 @@ export const ResendEmailController = async (req: any, res: Response, next: NextF
         })
         .catch((err) => next(err))
 
+}
+
+
+export const GetUserController = async (req: any, res: Response, next: NextFunction) => {
+    const { user_id } = req.params
+    userService.GetUserById(user_id)
+        .then(result => {
+            res.status(200).json({ data: result })
+        })
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }

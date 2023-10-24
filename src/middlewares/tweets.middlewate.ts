@@ -45,8 +45,9 @@ export const CreateTweetValidator = validate(
                 options: (value, { req }) => {
                     const type = req.body.type as TweetType
 
+
                     if (type === TweetType.Retweet) {
-                        if (value === '') {
+                        if (value === "" || value === null) {
                             throw new ErrorWithStatus({ message: TWEETS_MESSAGES.CONTENT_MUST_BE_EMPTY_STRING, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
                         }
                     }
