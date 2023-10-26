@@ -15,7 +15,7 @@ export const LoginController = async (req: Request, res: Response, next: NextFun
     userService.SaveRefreshToken(email, password)
         .then((result) => {
             console.log(result)
-            res.cookie('refreshToken', result.refreshToken, { httpOnly: false })
+            res.cookie('refreshToken', result.refreshToken, { httpOnly: false, secure: true })
             return res.status(HTTP_STATUS.OK).json(result);
         })
         .catch(err => next(err))
