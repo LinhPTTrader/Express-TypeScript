@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { AccessTokenValidator, ChangePasswordValidator, EmailTokenValidator, EmailValidator, EmailVerifyTokenValidator, FollowerValidation, ForgotPasswordTokenValidator, RefreshTokenValidator, RegisterValidator, ResetPasswordTokenValidator, UserUpdateValidator, ValidatorUser } from '~/middlewares/users.middlewares'
-import { ChangePasswordController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, GetUserController, LoginController, LogoutController, RegisterController, ResendEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyEmailController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
+import { ChangePasswordController, CheckFollowerController, EmailVerifyController, FetchAcccountController, FollowerController, ForgotPasswordController, GetProfileController, GetUserController, LoginController, LogoutController, RegisterController, ResendEmailController, ResetPasswordController, UnFollowerController, UpdateProfileController, VerifyEmailController, VerifyForgotPasswordController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -136,5 +136,9 @@ usersRouter.post('/unfollower', AccessTokenValidator, FollowerValidation, UnFoll
 
 
 usersRouter.get('/getuser/:user_id', GetUserController)
+
+
+
+usersRouter.post('/checkFollower', AccessTokenValidator, FollowerValidation, CheckFollowerController)
 
 export default usersRouter

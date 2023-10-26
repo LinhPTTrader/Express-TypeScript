@@ -251,6 +251,10 @@ class UserService {
         const data = pick(user, ['_id', 'name', 'date_of_birth', 'bio', 'location', 'website', 'avatar', 'cover_photo', 'username', 'verify'])
         return data
     }
+
+    async CheckFollower(user_id: ObjectId, follower_user_id: ObjectId) {
+        return await databaseService.Follower.findOne({ user_id: new ObjectId(user_id), follower_user_id: new ObjectId(follower_user_id) })
+    }
 }
 
 const userService = new UserService();

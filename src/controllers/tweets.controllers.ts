@@ -42,11 +42,12 @@ export const GetTweetChildrencontroller = (req: any, res: Response, next: NextFu
 
     tweetService.GetTweetChildren(Number(limit), Number(page), Number(tweet_type), tweet_id)
         .then(result => {
+            console.log("KQ", result)
             tweetService.increaseView(tweet_id, user_id)
                 .then(
                     result2 => {
-                        // console.log(result2)
-                        res.json({ ...result[0], guest_views: result2?.guest_views, user_views: result2?.user_views })
+                        console.log(result2)
+                        res.json({ result, guest_views: result2?.guest_views, user_views: result2?.user_views })
                     }
                 )
                 .catch(err => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))

@@ -347,13 +347,12 @@ class TweetService {
         ).toArray()
     }
     async GetTweetChildren(limit: number, page: number, tweet_type: TweetType, tweet_id: string) {
-        // console.log(limit, page, tweet_type, tweet_id)
+        console.log(limit, page, tweet_type, tweet_id)
         return await databaseService.Tweet.aggregate(
             [
                 {
                     '$match': {
-                        '_id': new ObjectId(tweet_id),
-                        'type': tweet_type
+                        'parent_id': new ObjectId(tweet_id),
                     }
                 },
                 {
@@ -469,6 +468,26 @@ class TweetService {
                 }, {
                     '$project': {
                         'tweet_children': 0
+                    }
+                },
+                {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'user_id',
+                        'foreignField': '_id',
+                        'as': 'user'
+                    }
+                },
+                {
+                    '$project': {
+                        '_id': 1,
+                        'content': 1,
+                        'created_at': 1,
+                        'updated_at': 1,
+                        'user': {
+                            'name': 1,
+                            'avatar': 1
+                        }
                     }
                 }
             ]

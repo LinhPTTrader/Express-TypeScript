@@ -176,3 +176,17 @@ export const GetUserController = async (req: any, res: Response, next: NextFunct
         })
         .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
 }
+
+export const CheckFollowerController = async (req: any, res: Response, next: NextFunction) => {
+    const user_id = req.id;
+    const { follower_user_id } = req.body
+    userService.CheckFollower(user_id, follower_user_id)
+        .then(result => {
+            if (result !== null) {
+                res.status(200).json(true)
+            } else {
+                res.status(404).json(false)
+            }
+        })
+        .catch(() => next(new ErrorWithStatus({ message: 'ERROR', status: HTTP_STATUS.INTERNAL_SERVER_ERROR })))
+}

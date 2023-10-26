@@ -33,7 +33,7 @@ export const handleUploadImage = (req: Request) => {
         uploadDir: path.resolve('uploads/images'),
         maxFiles: 4,
         keepExtensions: true,
-        maxFileSize: 1000 * 1024, //1MB
+        maxFileSize: 2000 * 1024, //2MB
         filter: ({ name, originalFilename, mimetype }) => {
 
             const valid = name === 'image' && Boolean(mimetype?.includes('image/'))

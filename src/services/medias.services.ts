@@ -18,7 +18,6 @@ class MediaService {
             const newFullFileName = `${newName}.jpg`
             // console.log(file.filepath);
             await sharp(file.filepath)
-                .resize(800, 800)
                 .jpeg()
                 .toFile(newPath);
             const s3Result = await UploadFileS3({
